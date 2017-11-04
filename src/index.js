@@ -4,39 +4,57 @@ import R from 'ramda';
 import Promise from 'bluebird';
 import F from './functional';
 const { identity, constant, ifElse, cond, each, eqeqeq, tautology, thrower } = F;
-const { compose, composeP, curry, map, reduce, filter } = F.R;
+const { compose, composeP, map, reduce, filter } = F.R;
+child.exec = Promise.promisify(child.exec, { context: child });
 
-child.exec = Promise.promisfy(child.exec, { context: child });
+const COMMANDS = {
+  MACOS: 'diskutil info -all',
+  LINUX: 'df -T && ' +
+    'echo "" && echo "**********" && echo "" && ' +
+    'fdisk -l && ' +
+    'echo "" && echo "**********" && echo "" && ' +
+    'lsblk -o kname,fstype,mountpoint,label,ro,rm,model,type -P',
+  WINDOWS: 'wmic logicaldisk get ' +
+    'Caption,Description,DeviceID,FileSystem,FreeSpace,Name,Size,VolumeName'
+};
+
+// --------------------------------------
+// Common Core - Utility Functions
+// --------------------------------------
 
 const lasti = (a) => a[a.length - 1];
-const stringify = (v) => v.toString();
+const stringify = (v) => v && (typeof v === 'object' || typeof v === 'symbol') ? v.toString() : `${v}`;
 const hasSubstr = (s, sub) => s.indexOf(sub) !== -1;
-const getYesNo = (v) => v !== 'No';
+const getYesNo = (v) => v === 'Yes' ? true : v === 'No' ? false : undefined;
 const splitEOL = (s) => typeof s === 'number'
   ? (v) => v.split(os.EOL.repeat(s))
   : s.split(os.EOL);
 
 // --------------------------------------
-// Validation
+// Common Core - Validation
 // --------------------------------------
 
 const validateDev = cond(
   {
     c: (dev) => typeof dev === 'function',
-    a: (dev) => dev
+    a: identity
+  },
+  {
+    c: (dev) => typeof dev === 'string',
+    a: (dev) => (disk) => hasSubstr(dev, disk)
   },
   {
     c: (dev) => dev instanceof RegExp,
     a: (dev) => (disk) => dev.test(disk)
   },
   {
-    c: (dev) => !identity(dev),
+    c: (dev) => typeof dev === 'undefined' || (!dev && typeof dev === 'object'),
     a: (dev) => tautology
   },
   {
     c: tautology,
     a: (dev) => thrower(
-      `fs.filesystem expected first argument 'dev' to be a function, string, regex or undefined. ` +
+      `fs.filesystem expected first argument 'dev' to be a function, string, regex or undefined/null. ` +
       `Found ${typeof dev === 'object' ? dev.constructor.name : typeof dev} instead.`,
       TypeError
     )
@@ -53,14 +71,15 @@ const validateCallback = ifElse(
   )
 );
 
-const validate = (dev, callback) => ifElse(
-  () => typeof dev === 'function' && !callback,
-  () => { return [ tautology, dev ]; },
-  () => { return [ validateDev(dev), validateCallback(callback) ]; }
-)();
+const validate = (validateDev, validateCallback) =>
+  (dev, callback) => ifElse(
+    () => typeof dev === 'function' && !callback,
+    () => { return [ tautology, dev ]; },
+    () => { return [ validateDev(dev), validateCallback(callback) ]; }
+  )();
 
 // --------------------------------------
-// Filesystem Information Fetch
+// Common Core - Empty FS Objects
 // --------------------------------------
 
 const emptyDevice = () => {
@@ -93,10 +112,10 @@ const emptyVolume = () => {
 };
 
 // --------------------------------------
-// MacOS Filesystem Information Fetch
+// Filesystem Information Fetch - MacOS
 // --------------------------------------
 
-const mergeVolumesAndDevices = ({ devices, volumes }) => {
+const mergeVolumesAndDevicesMacOS = ({ devices, volumes }) => {
   const vkeys = Object.keys(volumes);
   each((dev, key) => {
     dev.volumes = map(
@@ -137,112 +156,106 @@ const macOSFS = (fs) => {
   }
 };
 
-const parseMacOSToProps = (acc, {dev, vol}, [key, value]) => {
-  switch(key) {
-  case 'Device Identifier':
-    acc.devices[dev].id = value;
-    break;
-  case 'Device Node':
-    acc.devices[dev].node = value;
-    break;
-  case 'Whole':
-    acc.devices[dev].whole = getYesNo(value);
-    break;
-  case 'Part of Whole':
-    acc.devices[dev].parent = value;
-    break;
-  case 'Device / Media Name':
-    acc.devices[dev].description = value;
-    break;
-  case 'Volume Name':
-    acc.volumes[vol].name = hasSubstr(value, 'Not applicable') ? null : value;
-    break;
-  case 'Mounted':
-    acc.volumes[vol].mounted = getYesNo(value);
-    break;
-  case 'Mount Point':
-    acc.volumes[vol].mountPoint = value;
-    break;
-  case 'File System Personality':
-    acc.volumes[vol].fs = macOSFS(value);
-    break;
-  case 'Partition Type':
-    acc.volumes[vol].description = value;
-    break;
-  case 'Protocol':
-    acc.devices[dev].protocol = value;
-    break;
-  case 'Disk Size':
-    acc.devices[dev].size = parseInt(value.match(/^\((\d+) Bytes\)/)[1]);
-    break;
-  case 'Device Block Size':
-    acc.devices[dev].block_size = parseInt(value.match(/\d+/)[0]);
-    break;
-  case 'Volume Total Space':
-    if(!acc.volumes[vol].space) acc.volumes[vol].space = { total: getMacOSBytes(value) };
-    else acc.volumes[vol].space.total = getMacOSBytes(value);
-    break;
-  case 'Volume Used Space':
-    if(!acc.volumes[vol].space) acc.volumes[vol].space = { used: getMacOSBytes(value) };
-    else acc.volumes[vol].space.used = getMacOSBytes(value);
-    break;
-  case 'Volume Available Space':
-    if(!acc.volumes[vol].space) acc.volumes[vol].space = { available: getMacOSBytes(value) };
-    else acc.volumes[vol].space.available = getMacOSBytes(value);
-    break;
-  case 'Allocation Block Size':
-    acc.volumes[vol].block_size = parseInt(value.match(/\d+/)[0]);
-    break;
-  case 'Read-Only Media':
-    acc.devices[dev].read_only = getYesNo(value);
-    break;
-  case 'Read-Only Volume':
-    acc.volumes[vol].read_only = getYesNo(value);
-    break;
-  case 'Removable Media':
-    acc.devices[dev].removable = value === 'Fixed';
-    break;
-  default:
-    break;
-  }
-  return acc;
-};
+const parseMacOSToProps = (macOSFS, getYesNo, getMacOSBytes) =>
+  (acc, {dev, vol}, [key, value]) => {
+    switch(key) {
+    case 'Device Identifier':
+      acc.devices[dev].id = value;
+      break;
+    case 'Device Node':
+      acc.devices[dev].node = value;
+      break;
+    case 'Whole':
+      acc.devices[dev].whole = getYesNo(value);
+      break;
+    case 'Part of Whole':
+      acc.devices[dev].parent = value;
+      break;
+    case 'Device / Media Name':
+      acc.devices[dev].description = value;
+      break;
+    case 'Volume Name':
+      acc.volumes[vol].name = hasSubstr(value, 'Not applicable') ? null : value;
+      break;
+    case 'Mounted':
+      acc.volumes[vol].mounted = getYesNo(value);
+      break;
+    case 'Mount Point':
+      acc.volumes[vol].mountPoint = value;
+      break;
+    case 'File System Personality':
+      acc.volumes[vol].fs = macOSFS(value);
+      break;
+    case 'Partition Type':
+      acc.volumes[vol].description = value;
+      break;
+    case 'Protocol':
+      acc.devices[dev].protocol = value;
+      break;
+    case 'Disk Size':
+      acc.devices[dev].size = parseInt(value.match(/^\((\d+) Bytes\)/)[1]);
+      break;
+    case 'Device Block Size':
+      acc.devices[dev].block_size = parseInt(value.match(/\d+/)[0]);
+      break;
+    case 'Volume Total Space':
+      if(!acc.volumes[vol].space) acc.volumes[vol].space = { total: getMacOSBytes(value) };
+      else acc.volumes[vol].space.total = getMacOSBytes(value);
+      break;
+    case 'Volume Used Space':
+      if(!acc.volumes[vol].space) acc.volumes[vol].space = { used: getMacOSBytes(value) };
+      else acc.volumes[vol].space.used = getMacOSBytes(value);
+      break;
+    case 'Volume Available Space':
+      if(!acc.volumes[vol].space) acc.volumes[vol].space = { available: getMacOSBytes(value) };
+      else acc.volumes[vol].space.available = getMacOSBytes(value);
+      break;
+    case 'Allocation Block Size':
+      acc.volumes[vol].block_size = parseInt(value.match(/\d+/)[0]);
+      break;
+    case 'Read-Only Media':
+      acc.devices[dev].read_only = getYesNo(value);
+      break;
+    case 'Read-Only Volume':
+      acc.volumes[vol].read_only = getYesNo(value);
+      break;
+    case 'Removable Media':
+      acc.devices[dev].removable = value === 'Fixed';
+      break;
+    default:
+      break;
+    }
+    return acc;
+  };
 
-const parseMacOS = (userFilter) => (output) => compose(
-  filter(userFilter),
-  mergeVolumesAndDevices,
-  reduce( // Map to object
-    (acc, entry) => compose(
-      (lines) => {
-        // COMBAK Not efficient
-        const dev = lines.find((l) => l.match('Device Node')).match(/:\s+(.*)/)[1];
-        const vol = lines.find((l) => l.match('Device Identifier')).match(/:\s+(.*)/)[1];
-        acc.devices[dev] = acc.devices[dev] ? acc.devices[dev] : emptyDevice();
-        acc.volumes[vol] = acc.volumes[vol] ? acc.volumes[vol] : emptyVolume();
-        return reduce(
-          (a, s) => parseMacOSToProps(a, {dev, vol}, s.split(/:\s+/)),
-          acc,
-          lines
-        );
-      },
-      filter((s) => s.trim()),
-      splitEOL
-    )(entry),
-    { devices: {}, volumes: {} }
-  ),
-  (s) => s.split(/\n\*+\n\n/), // Split per entry
-  stringify
-)(output);
-
-const macOS = (filter, cb, sync = false) => ifElse(
-  () => sync,
-  (cmd) => compose(parseMacOS(filter), child.execSync)(cmd),
-  (cmd) => composeP(curry(cb)(null), parseMacOS(filter), child.exec)(cmd)
-    .catch(cb)
-)('diskutil info -all');
+const parseMacOS = (mergeVolumesAndDevicesMacOS, parseMacOSToProps) =>
+  (userFilter) => (output) => compose(
+    filter(userFilter),
+    mergeVolumesAndDevicesMacOS,
+    reduce( // Map to object
+      (acc, entry) => compose(
+        (lines) => {
+          // COMBAK Not efficient
+          const dev = lines.find((l) => l.match('Device Node')).match(/:\s+(.*)/)[1];
+          const vol = lines.find((l) => l.match('Device Identifier')).match(/:\s+(.*)/)[1];
+          acc.devices[dev] = acc.devices[dev] ? acc.devices[dev] : emptyDevice();
+          acc.volumes[vol] = acc.volumes[vol] ? acc.volumes[vol] : emptyVolume();
+          return reduce(
+            (a, s) => parseMacOSToProps(a, {dev, vol}, s.split(/:\s+/)),
+            acc,
+            lines
+          );
+        },
+        filter((s) => s.trim()),
+        splitEOL
+      )(entry),
+      { devices: {}, volumes: {} }
+    ),
+    (s) => s.split(/\n\*+\n\n/) // Split per entry
+  )(output);
 
 // --------------------------------------
-// Linux Filesystem Information Fetch
+// Filesystem Information Fetch - Linux
 // --------------------------------------
 
 const mergeVolumesAndDevicesLinux = ({ devices, volumes }) => {
@@ -296,24 +309,25 @@ const parselsblkVolumeData = (acc) => (values) => {
   acc.volumes[`/dev/${values[0]}`].description = values[3] || values[6];
 };
 
-const parselsblk = (lsblk) => (acc) => compose(
-  constant(acc),
-  each(
-    compose(
-      ifElse(
-        (values) => values[values.length - 1] === 'disk',
-        parselsblkDeviceData(acc),
-        parselsblkVolumeData(acc)
-      ),
-      (line) => map(
-        (field) => field.replace('"').split('=')[1],
-        line.match(/([A-Z]+="[^"]*")+/g)
+const parselsblk = (parselsblkDeviceData, parselsblkVolumeData) =>
+  (lsblk) => (acc) => compose(
+    constant(acc),
+    each(
+      compose(
+        ifElse(
+          (values) => values[values.length - 1] === 'disk',
+          parselsblkDeviceData(acc),
+          parselsblkVolumeData(acc)
+        ),
+        (line) => map(
+          (field) => field.replace('"').split('=')[1],
+          line.match(/([A-Z]+="[^"]*")+/g)
+        )
       )
-    )
-  ),
-  filter((s) => s.trim()), // remove empty lines
-  splitEOL
-)(lsblk);
+    ),
+    filter((s) => s.trim()), // remove empty lines
+    splitEOL
+  )(lsblk);
 
 const parsefdisklDeviceData = (acc) => ([head, ...tail]) => {
   const [name, size] = head.match(/Disk\s(.*):\s.*,\s(\d+)\sbytes/).slice(1);
@@ -345,15 +359,16 @@ const parsefdisklVolumeData = (acc) => compose(
   (l) => l.match(/([\w/\\:]+)\s+.*\s+(\d+)\s+[0-9]+\.[0-9]+[A-Z]{1}\s+(.*)/).slice(1)
 );
 
-const parsefdiskl = (fdiskl) => (acc) => compose(
-  (blocks) => blocks.reduce((a, block, i) => ifElse(
-    () => (i + 1) % 2,
-    () => compose(parsefdisklDeviceData(a), splitEOL)(block),
-    () => compose(map(parsefdisklVolumeData(a)), (arr) => arr.splice(1), splitEOL)(block)
-  )(), acc),
-  filter((s) => s.trim()), // remove empty lines
-  splitEOL(2) // split into disk and volumes
-)(fdiskl);
+const parsefdiskl = (parsefdisklDeviceData, parsefdisklVolumeData) =>
+  (fdiskl) => (acc) => compose(
+    (blocks) => blocks.reduce((a, block, i) => ifElse(
+      () => (i + 1) % 2,
+      () => compose(parsefdisklDeviceData(a), splitEOL)(block),
+      () => compose(map(parsefdisklVolumeData(a)), (arr) => arr.splice(1), splitEOL)(block)
+    )(), acc),
+    filter((s) => s.trim()), // remove empty lines
+    splitEOL(2) // split into disk and volumes
+  )(fdiskl);
 
 const parsedfT = (dft) => (acc) => compose(
   R.mapAccum(
@@ -386,35 +401,20 @@ const parsedfT = (dft) => (acc) => compose(
   splitEOL
 )(dft);
 
-const parseLinux = (userFilter) => (output) => compose(
-  filter(userFilter),
-  ([dft, fdiskl, lsblk]) => compose(
-    mergeVolumesAndDevicesLinux,
-    parselsblk(lsblk),
-    parsefdiskl(fdiskl),
-    parsedfT(dft)
-  )({ devices: {}, volumes: {} }),
-  (s) => s.split(/\n\*+\n\n/), // Split both utilities
-  stringify
-)(output);
-
-const linux = (filter, cb, sync = false) => {
-  const cmd = 'df -T && ' +
-  'echo "" && echo "**********" && echo "" && ' +
-  'fdisk -l && ' +
-  'echo "" && echo "**********" && echo "" && ' +
-  'lsblk -o kname,fstype,mountpoint,label,ro,rm,model,type -P';
-
-  return ifElse(
-    () => sync,
-    (cmd) => compose(parseLinux(filter), child.execSync)(cmd),
-    (cmd) => composeP(curry(cb)(null), parseLinux(filter), child.exec)(cmd)
-      .catch(cb)
-  )(cmd);
-};
+const parseLinux = (mergeVolumesAndDevicesLinux, parselsblk, parsefdiskl, parsedfT) =>
+  (userFilter) => (output) => compose(
+    filter(userFilter),
+    ([dft, fdiskl, lsblk]) => compose(
+      mergeVolumesAndDevicesLinux,
+      parselsblk(lsblk),
+      parsefdiskl(fdiskl),
+      parsedfT(dft)
+    )({ devices: {}, volumes: {} }),
+    (s) => s.split(/\n\*+\n\n/) // Split utilities
+  )(output);
 
 // --------------------------------------
-// Windows Filesystem Information Fetch
+// Filesystem Information Fetch - Windows
 // --------------------------------------
 
 const parseWindowsProps =
@@ -439,7 +439,7 @@ const parseWindowsProps =
   return acc;
 };
 
-const parseWindows = (userFilter) => (output) => compose(
+const parseWindows = (parseWindowsProps) => (userFilter) => (output) => compose(
   filter(userFilter),
   reduce(
     (acc, v) => parseWindowsProps(acc, v.split(/\t|\s{2,}/)),
@@ -447,27 +447,21 @@ const parseWindows = (userFilter) => (output) => compose(
   ),
   (a) => a.splice(1),
   filter((s) => s.trim()),
-  splitEOL,
-  stringify
+  splitEOL
 )(output);
 
-const windows = (filter, cb, sync = false) => {
-  const cmd = 'wmic logicaldisk get ' +
-  'Caption,Description,DeviceID,FileSystem,FreeSpace,Name,Size,VolumeName';
-
-  return ifElse(
-    () => sync,
-    (cmd) => compose(parseWindows(filter), child.execSync)(cmd),
-    (cmd) => composeP(curry(cb)(null), parseWindows(filter), child.exec)(cmd)
-      .catch(cb)
-  )(cmd);
-};
-
 // --------------------------------------
-// Export Functions
+// Common Core - Main & Export Functions
 // --------------------------------------
 
-const filesystem = (dev, callback) => cond(
+const execute = (cmd, parser) => (filter, cb, sync = false) => ifElse(
+  () => sync,
+  (cmd) => compose(parser(filter), stringify, child.execSync)(cmd),
+  (cmd) => composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd)
+    .catch(cb)
+)(cmd);
+
+const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => cond(
   {
     c: eqeqeq('darwin'),
     a: () => macOS(...validate(dev, callback))
@@ -487,9 +481,9 @@ const filesystem = (dev, callback) => cond(
       `${os} at the moment`
     )
   }
-);
+)(platform);
 
-const filesystemSync = (dev) => cond(
+const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) => cond(
   {
     c: eqeqeq('darwin'),
     a: () => macOS(validateDev(dev), null, true)
@@ -509,7 +503,49 @@ const filesystemSync = (dev) => cond(
       `${os} at the moment`
     )
   }
+)(platform);
+
+/**
+ * Initialization Pattern
+ * Allows to test [rewired](https://github.com/jhnns/rewire) functions individually
+ * with sinon stubs and mockup functions
+**/
+const __init__ = {
+  validate: validate(validateDev, validateCallback),
+  macOS: execute(
+    COMMANDS.MACOS,
+    parseMacOS(
+      mergeVolumesAndDevicesMacOS,
+      parseMacOSToProps(macOSFS, getYesNo, getMacOSBytes)
+    )
+  ),
+  linux: execute(
+    COMMANDS.LINUX,
+    parseLinux(
+      mergeVolumesAndDevicesLinux,
+      parselsblk(parselsblkDeviceData, parselsblkVolumeData),
+      parsefdiskl(parsefdisklDeviceData, parsefdisklVolumeData),
+      parsedfT
+    )
+  ),
+  windows: execute(
+    COMMANDS.WINDOWS,
+    parseWindows(parseWindowsProps)
+  )
+};
+
+module.exports = filesystem(
+  __init__.macOS,
+  __init__.linux,
+  __init__.windows,
+  __init__.validate,
+  os.platform()
 );
 
-module.exports = filesystem;
-filesystem.sync = filesystemSync;
+filesystem.sync = filesystemSync(
+  __init__.macOS,
+  __init__.linux,
+  __init__.windows,
+  __init__.validateDev,
+  os.platform()
+);

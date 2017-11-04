@@ -1,5 +1,5 @@
 import R from 'ramda';
-const { compose, composeP, curry, map, reduce, filter } = R;
+const { compose, composeP, map, reduce, filter } = R;
 
 // I :: a -> a
 const I = (x) => x;
@@ -54,7 +54,6 @@ module.exports = {
   R: {
     compose,
     composeP,
-    curry,
     map,
     reduce,
     each,
