@@ -1,7 +1,7 @@
 const tests = require('./tests');
 
 /* global describe */
-describe('fsfilesystem Testing Suite', () => {
+describe('node-fs-filesystem', () => {
   if(process.env.TESTS) {
     let envtests = process.env.TESTS.split(',');
     for(let key in tests) {

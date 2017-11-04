@@ -1,8 +1,11 @@
 module.exports = {
+  'index': {
+    'path': './src/index.js'
+  },
   'functional': {
     'path': './src/functional.js'
   },
-  'index': {
-    'path': './src/index.js'
+  'utilities': {
+    'path': './src/utilities.js'
   }
 };
