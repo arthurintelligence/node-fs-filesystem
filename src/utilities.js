@@ -25,6 +25,7 @@ export const emptyDevice = () => {
     name: null,
     size: null,
     description: null,
+    protocol: null,
     blockSize: null,
     readOnly: null,
     removable: null
@@ -33,6 +34,10 @@ export const emptyDevice = () => {
 
 export const emptyVolume = () => {
   return {
+    id: null,
+    node: null,
+    whole: false,
+    parent: null,
     name: null,
     description: null,
     blockSize: null,

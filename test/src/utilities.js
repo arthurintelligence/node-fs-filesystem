@@ -130,7 +130,7 @@ describe('general utilities', function() {
     it('should return an empty object representation of a device', function(done){
       const props = [
         'id', 'node', 'whole', 'parent', 'name', 'size', 'description',
-        'blockSize', 'readOnly', 'removable'
+        'protocol', 'blockSize', 'readOnly', 'removable'
       ];
       const node = emptyDevice();
       expect(node).to.be.an('object').that.has.all.keys(...props);
@@ -143,7 +143,7 @@ describe('general utilities', function() {
   describe('emptyVolume', function(){
     it('should return an empty object representation of a volume', function(done){
       const props = [
-        'name', 'description', 'blockSize', 'blocks', 'readOnly',
+        'id', 'name', 'node', 'parent', 'whole', 'description', 'blockSize', 'blocks', 'readOnly',
         'mounted', 'mountPoint', 'partitionType', 'fs', 'space'
       ];
       const node = emptyVolume();

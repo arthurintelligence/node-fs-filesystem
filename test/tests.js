@@ -1,11 +1,14 @@
 module.exports = {
   core: {
-    path: './src/index.js'
+    paths: ['./src/index.js']
   },
   functional: {
-    path: './src/functional.js'
+    paths: ['./src/functional.js']
   },
   utilities: {
-    path: './src/utilities.js'
+    paths: ['./src/utilities.js']
+  },
+  macOS: {
+    paths: ['./src/macOS/macOS.js', './src/macOS/index.js']
   }
 };

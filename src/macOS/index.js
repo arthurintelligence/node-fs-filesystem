@@ -1,16 +1,22 @@
 import {
   COMMAND,
   parseMacOS,
-  mergeVolumesAndDevicesMacOS,
-  parseMacOSToProps,
   macOSFS,
-  getMacOSBytes
+  getMacOSBytes,
+  getPropsTarget,
+  addEmptyDevice,
+  addEmptyVolumeToDevice,
+  addEmptyNode,
+  parseNodeId,
+  parseMacOSToProps
 } from './macOS';
 
 export default{
   COMMAND,
   parser: parseMacOS(
-    mergeVolumesAndDevicesMacOS,
+    getPropsTarget,
+    addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice),
+    parseNodeId,
     parseMacOSToProps(macOSFS, getMacOSBytes)
   )
 };

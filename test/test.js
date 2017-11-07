@@ -6,12 +6,12 @@ describe('node-fs-filesystem', () => {
     let envtests = process.env.TESTS.split(',');
     for(let key in tests) {
       if(envtests.indexOf(key) !== -1) {
-        require(tests[key].path);
+        tests[key].paths.forEach((p) => require(p));
       }
     }
   }else{
     for(let key in tests) {
-      require(tests[key].path);
+      tests[key].paths.forEach((p) => require(p));
     }
   }
 });
