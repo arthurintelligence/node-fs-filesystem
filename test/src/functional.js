@@ -31,28 +31,65 @@ describe('functional utilities', function () {
     });
   });
 
-  describe('constant / K combinator', function () {
-    it('K should return a function', function (done) {
-      const x = {};
-      expect(F.K(x)).to.be.a('function');
+  describe('flip / C combinator', function () {
+    it('C(f) should return a function', function (done) {
+      const f = () => {};
+      expect(F.C(f)).to.be.a('function');
       done();
     });
 
-    it('K should return the value initially provided, independently of any further input', function (done) {
-      const x = {};
-      expect(F.K(x)(Math.random())).to.be.equal(x);
+    it('C(f)(a) should return a function', function (done) {
+      const f = () => {};
+      const a = {};
+      expect(F.C(f)(a)).to.be.a('function');
       done();
     });
 
-    it('constant should return a function', function (done) {
-      const x = {};
-      expect(F.constant(x)).to.be.a('function');
+    it('C(f)(a)(b) should call f(a)(b)', function (done) {
+      const fspy = sinon.spy();
+      const f = (b) => { fspy(b); return f; };
+      const a = {};
+      const b = {};
+      F.C(f)(a)(b);
+      expect(fspy.getCall(0).calledWithExactly(b)).to.be.true;
+      expect(fspy.getCall(1).calledWithExactly(a)).to.be.true;
+      done();
+    });
+  });
+
+  describe('substitute / S combinator', function () {
+    it('S(f) should return a function', function (done) {
+      const f = () => {};
+      expect(F.S(f)).to.be.a('function');
       done();
     });
 
-    it('constant should return the value initially provided, independently of any further input', function (done) {
-      const x = {};
-      expect(F.constant(x)(Math.random())).to.be.equal(x);
+    it('S(f, g) should return a function', function (done) {
+      const f = () => {};
+      const g = () => {};
+      expect(F.S(f, g)).to.be.a('function');
+      done();
+    });
+
+    it('S(f)(g) should return a function', function (done) {
+      const f = () => {};
+      const g = () => {};
+      expect(F.S(f)(g)).to.be.a('function');
+      done();
+    });
+
+    it('S(f)(g) should return the same function definition as S(f, g)', function (done) {
+      const f = () => {};
+      const g = () => {};
+      expect(JSON.stringify(F.S(f)(g))).to.be.equal(JSON.stringify(F.S(f, g)));
+      done();
+    });
+
+    it('S(f)(g)(x) should call f(x)(g(x))', function (done) {
+      const f = (x) => (y) => x + y;
+      const g = (x) => 'y';
+      const x = 'x';
+      expect(F.S(f)(g)(x)).to.be.equal('xy');
       done();
     });
   });
@@ -65,26 +102,125 @@ describe('functional utilities', function () {
     });
 
     it('should iterate through second argument (array)', function (done) {
+      // each(f, x)
       const f = sinon.spy();
       const x = [1, 2, 3];
       F.each(f, x);
       expect(f.callCount).to.be.equal(3);
-      const calls = f.getCalls();
-      expect(calls[0].calledWithExactly(1)).to.be.true;
-      expect(calls[1].calledWithExactly(2)).to.be.true;
-      expect(calls[2].calledWithExactly(3)).to.be.true;
+      const fcalls = f.getCalls();
+      expect(fcalls[0].calledWithExactly(1)).to.be.true;
+      expect(fcalls[1].calledWithExactly(2)).to.be.true;
+      expect(fcalls[2].calledWithExactly(3)).to.be.true;
+
+      // each(f)(x)
+      const g = sinon.spy();
+      const y = [1, 2, 3];
+      F.each(g)(y);
+      expect(g.callCount).to.be.equal(3);
+      const gcalls = g.getCalls();
+      expect(gcalls[0].calledWithExactly(1)).to.be.true;
+      expect(gcalls[1].calledWithExactly(2)).to.be.true;
+      expect(gcalls[2].calledWithExactly(3)).to.be.true;
       done();
     });
 
     it('should iterate through second argument (object)', function (done) {
+      // each(f, x)
       const f = sinon.spy();
       const x = { a: 1, b: 2, c: 3 };
       F.each(f, x);
       expect(f.callCount).to.be.equal(3);
-      const calls = f.getCalls();
-      expect(calls[0].calledWith(1, 'a', x)).to.be.true;
-      expect(calls[1].calledWith(2, 'b', x)).to.be.true;
-      expect(calls[2].calledWith(3, 'c', x)).to.be.true;
+      const fcalls = f.getCalls();
+      expect(fcalls[0].calledWith(1, 'a', x)).to.be.true;
+      expect(fcalls[1].calledWith(2, 'b', x)).to.be.true;
+      expect(fcalls[2].calledWith(3, 'c', x)).to.be.true;
+
+      // each(f)(x)
+      const g = sinon.spy();
+      const y = { a: 1, b: 2, c: 3 };
+      F.each(g)(y);
+      expect(g.callCount).to.be.equal(3);
+      const gcalls = g.getCalls();
+      expect(gcalls[0].calledWith(1, 'a', x)).to.be.true;
+      expect(gcalls[1].calledWith(2, 'b', x)).to.be.true;
+      expect(gcalls[2].calledWith(3, 'c', x)).to.be.true;
+      done();
+    });
+  });
+
+  describe('filter', function () {
+    it('should return curried function if only provided looping function', function (done) {
+      const f = () => {};
+      expect(F.R.filter(f)).to.be.a('function');
+      done();
+    });
+
+    it('should filter second argument (array)', function (done) {
+      // filter(f, x)
+      const fspy = sinon.spy();
+      const f = (v) => { fspy(v); return v % 2; };
+      const x = [1, 2, 3];
+
+      const xfiltered = F.R.filter(f, x);
+      expect(xfiltered.length).to.be.equal(2);
+      expect(xfiltered[0]).to.be.equal(1);
+      expect(xfiltered[1]).to.be.equal(3);
+
+      expect(fspy.callCount).to.be.equal(3);
+      const fcalls = fspy.getCalls();
+      expect(fcalls[0].calledWithExactly(1)).to.be.true;
+      expect(fcalls[1].calledWithExactly(2)).to.be.true;
+      expect(fcalls[2].calledWithExactly(3)).to.be.true;
+
+      // filter(f)(x)
+      const gspy = sinon.spy();
+      const g = (v) => { gspy(v); return v % 2; };
+      const y = [1, 2, 3];
+
+      const yfiltered = F.R.filter(g)(y);
+      expect(yfiltered.length).to.be.equal(2);
+      expect(yfiltered[0]).to.be.equal(1);
+      expect(yfiltered[1]).to.be.equal(3);
+
+      expect(gspy.callCount).to.be.equal(3);
+      const gcalls = gspy.getCalls();
+      expect(gcalls[0].calledWithExactly(1)).to.be.true;
+      expect(gcalls[1].calledWithExactly(2)).to.be.true;
+      expect(gcalls[2].calledWithExactly(3)).to.be.true;
+      done();
+    });
+
+    it('should filter second argument (object)', function (done) {
+      const fspy = sinon.spy();
+      const f = (v, k, o) => { fspy(v, k, o); return v % 2; };
+      const x = { a: 1, b: 2, c: 3 };
+
+      const xfiltered = F.R.filter(f, x);
+      expect(xfiltered.a).to.be.equal(1);
+      expect(xfiltered.b).to.be.undefined;
+      expect(xfiltered.c).to.be.equal(3);
+
+      expect(fspy.callCount).to.be.equal(3);
+      const fcalls = fspy.getCalls();
+      expect(fcalls[0].calledWith(1, 'a', x)).to.be.true;
+      expect(fcalls[1].calledWith(2, 'b', x)).to.be.true;
+      expect(fcalls[2].calledWith(3, 'c', x)).to.be.true;
+
+      const gspy = sinon.spy();
+      const g = (v, k, o) => { gspy(v, k, o); return v % 2; };
+      const y = { a: 1, b: 2, c: 3 };
+
+      const yfiltered = F.R.filter(g)(y);
+      expect(yfiltered.a).to.be.equal(1);
+      expect(yfiltered.b).to.be.undefined;
+      expect(yfiltered.c).to.be.equal(3);
+      expect(gspy.callCount).to.be.equal(3);
+
+      expect(gspy.callCount).to.be.equal(3);
+      const gcalls = gspy.getCalls();
+      expect(gcalls[0].calledWith(1, 'a', y)).to.be.true;
+      expect(gcalls[1].calledWith(2, 'b', y)).to.be.true;
+      expect(gcalls[2].calledWith(3, 'c', y)).to.be.true;
       done();
     });
   });
@@ -284,6 +420,23 @@ describe('functional utilities', function () {
 
       for(let i = 0; i < 10; i++) test(i);
 
+      done();
+    });
+  });
+
+  describe('tap', function() {
+    it('tap(f) should return a function', function (done) {
+      const f = () => {};
+      expect(F.tap(f)).to.be.a('function');
+      done();
+    });
+
+    it('tap(f)(x) should call f(x) and return x', function (done) {
+      const f = sinon.spy();
+      const x = {};
+      F.tap(f)(x);
+      expect(f.calledOnce).to.be.true;
+      expect(f.calledWithExactly(x)).to.be.true;
       done();
     });
   });

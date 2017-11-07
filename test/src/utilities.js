@@ -1,14 +1,18 @@
 import os from 'os';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import rewire from 'rewire';
-
-const fsfilesystem = rewire('../../src/utilities.js');
+import {
+  lasti,
+  stringify,
+  hasSubstr,
+  getYesNo,
+  splitEOL,
+  emptyDevice,
+  emptyVolume
+} from '../../src/utilities.js';
 
 describe('general utilities', function() {
   describe('lasti', function(){
-    const lasti = fsfilesystem.__get__('lasti');
-
     it('should return the last index of an array', function(done) {
       const a = [0, 1, 2];
       expect(lasti(a)).to.be.equal(2);
@@ -39,8 +43,6 @@ describe('general utilities', function() {
   });
 
   describe('stringify', function(){
-    const stringify = fsfilesystem.__get__('stringify');
-
     it('should call the toString method on the passed object', function(done){
       const o = {
         toString: sinon.spy()
@@ -63,8 +65,6 @@ describe('general utilities', function() {
   });
 
   describe('hasSubstr', function(){
-    const hasSubstr = fsfilesystem.__get__('hasSubstr');
-
     it('should return true if substring is part of string', function(done){
       expect(hasSubstr('sa', 'a')).to.be.true;
       done();
@@ -77,8 +77,6 @@ describe('general utilities', function() {
   });
 
   describe('getYesNo', function(){
-    const getYesNo = fsfilesystem.__get__('getYesNo');
-
     it('should return true if argument is \'Yes\'', function(done){
       expect(getYesNo('Yes')).to.be.true;
       done();
@@ -105,8 +103,6 @@ describe('general utilities', function() {
   });
 
   describe('splitEOL', function(){
-    const splitEOL = fsfilesystem.__get__('splitEOL');
-
     it('should split string on the EOL character', function(done){
       const split = splitEOL(['a', 'b', 'c'].join(os.EOL));
       expect(split[0]).to.be.equal('a');
@@ -126,6 +122,34 @@ describe('general utilities', function() {
       expect(split[0]).to.be.equal(arr[0]);
       expect(split[1]).to.be.equal(arr[1]);
       expect(split[2]).to.be.equal(arr[2]);
+      done();
+    });
+  });
+
+  describe('emptyDevice', function(){
+    it('should return an empty object representation of a device', function(done){
+      const props = [
+        'id', 'node', 'whole', 'parent', 'name', 'size', 'description',
+        'blockSize', 'readOnly', 'removable'
+      ];
+      const node = emptyDevice();
+      expect(node).to.be.an('object').that.has.all.keys(...props);
+      // To ensure that any further changes will cause to break
+      expect(Object.keys(node).length).to.be.equal(props.length);
+      done();
+    });
+  });
+
+  describe('emptyVolume', function(){
+    it('should return an empty object representation of a volume', function(done){
+      const props = [
+        'name', 'description', 'blockSize', 'blocks', 'readOnly',
+        'mounted', 'mountPoint', 'partitionType', 'fs', 'space'
+      ];
+      const node = emptyVolume();
+      expect(node).to.be.an('object').that.has.all.keys(...props);
+      // To ensure that any further changes will cause to break
+      expect(Object.keys(node).length).to.be.equal(props.length);
       done();
     });
   });

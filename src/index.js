@@ -21,11 +21,11 @@ const validateDev = cond(
   },
   {
     c: (dev) => typeof dev === 'string',
-    a: (dev) => (disk) => hasSubstr(dev, disk)
+    a: (dev) => (v, k) => hasSubstr(k, dev)
   },
   {
     c: (dev) => dev instanceof RegExp,
-    a: (dev) => (disk) => dev.test(disk)
+    a: (dev) => (v, k) => dev.test(k)
   },
   {
     c: (dev) => typeof dev === 'undefined' || (!dev && typeof dev === 'object'),

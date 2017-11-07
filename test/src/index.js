@@ -16,23 +16,23 @@ describe('common core', function() {
     });
 
     it('should return a function matching against dev if dev is a string', function(done){
-      const dev = 'hello';
+      const dev = 'disk0';
       const filter = validateDev(dev);
-      expect(filter('hello')).to.be.true;
-      expect(filter('Hello')).to.be.false;
-      expect(filter('ello')).to.be.true;
-      expect(filter('a')).to.be.false;
+      expect(filter(0, 'disk0')).to.be.true;
+      expect(filter(0, 'DISK0')).to.be.false;
+      expect(filter(0, 'disk0s1')).to.be.true;
+      expect(filter(0, 'random stuff')).to.be.false;
       done();
     });
 
     it('should return a function testing dev if dev is instanceof RegExp', function(done){
       const dev = /[a-z]{2}0/;
       const filter = validateDev(dev);
-      expect(filter('az0')).to.be.equal(dev.test('az0'));
-      expect(filter('b0')).to.be.equal(dev.test('b0'));
-      expect(filter('aG0')).to.be.equal(dev.test('aG0'));
-      expect(filter('az')).to.be.equal(dev.test('az'));
-      expect(filter('yta0')).to.be.equal(dev.test('yta0'));
+      expect(filter(0, 'az0')).to.be.equal(dev.test('az0'));
+      expect(filter(0, 'b0')).to.be.equal(dev.test('b0'));
+      expect(filter(0, 'aG0')).to.be.equal(dev.test('aG0'));
+      expect(filter(0, 'az')).to.be.equal(dev.test('az'));
+      expect(filter(0, 'yta0')).to.be.equal(dev.test('yta0'));
       done();
     });
 

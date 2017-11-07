@@ -1,5 +1,5 @@
 import R from 'ramda';
-const { compose, composeP, map, mapAccum, reduce, filter } = R;
+const { compose, composeP, map, mapAccum, reduce } = R;
 
 // I :: a -> a
 const I = (x) => x;
@@ -7,14 +7,33 @@ const I = (x) => x;
 // K :: a -> b -> a
 const K = (x) => (y) => x;
 
+// C :: (b -> (a -> *)), a, b -> *
+const C = (f) => (a) => (b) => f(b)(a);
+
+// S :: (x -> y -> *), (x -> y) -> *
+// S :: (x -> y -> *) -> (x -> y) -> *
+const S = (f, g) => g
+  ? (x) => f(x)(g(x))
+  : (g) => (x) => f(x)(g(x));
+
 // each :: (a -> *), [a]|Object -> undefined
-const each = (f, x) => {
-  if(x) {
-    return !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x);
-  }else{
-    return (x) => !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x);
-  }
+const each = (f, x) => x
+  ? !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x)
+  : (x) => !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x);
+
+// filter :: Object -> Object
+const filterObjIndexed = (f, x) => {
+  return compose(
+    R.reduce((acc, k) => { acc[k] = x[k]; return acc; }, {}),
+    R.filter((k) => f(x[k], k, x)),
+    R.keys
+  )(x);
 };
+
+// filter :: Object|[a] -> Object|[a]
+const filter = (f, x) => x
+  ? !Array.isArray(x) ? filterObjIndexed(f, x) : R.filter(f, x)
+  : (x) => !Array.isArray(x) ? filterObjIndexed(f, x) : R.filter(f, x);
 
 // ifElse :: (a -> Bool), (a -> *), (a -> *) -> (a -> *)
 const ifElse = function ifElse (f, g, h) {
@@ -31,6 +50,12 @@ const cond = function cond (...cases) {
   return (x) => ifElse((cs) => cs.length, (cs) => condr(x, 0, cs), K(x))(cases);
 };
 
+// tap :: Function -> a -> a
+const tap = (f) => (x) => {
+  f(x);
+  return x;
+};
+
 // eqeqeq :: * -> * -> Bool
 const eqeqeq = (x) => (y) => x === y;
 
@@ -43,14 +68,21 @@ const thrower = (msg, Type = Error) => { throw new Type(msg); };
 module.exports = {
   I,
   K,
+  C,
+  S,
   each,
+  filter,
   ifElse,
   cond,
+  tap,
   eqeqeq,
   tautology,
   thrower,
   identity: I,
   constant: K,
+  flip: C,
+  split: S,
+  substitute: S,
   R: {
     compose,
     composeP,

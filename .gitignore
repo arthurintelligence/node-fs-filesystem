@@ -57,9 +57,6 @@ typings/
 # dotenv environment variables file
 .env
 
-# data files
-data
-
 # build files
 dist
 
