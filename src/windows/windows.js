@@ -7,33 +7,42 @@ export const COMMAND = 'wmic logicaldisk get ' +
 
 export const parseWindowsProps =
 (acc, [ caption, desc, id, filesystem, space, name, size, volumename ]) => {
-  acc.devices[name][id] = acc.devices[id] ? acc.devices[id] : emptyDevice();
-  acc.devices[name][id].id = id;
-  acc.devices[name][id].node = caption;
-  acc.devices[name][id].name = name;
-  acc.devices[name][id].size = parseInt(size);
-  acc.devices[name][id].description = desc;
+  acc.devices[name] = acc.devices[name] ? acc.devices[name] : emptyDevice();
+  acc.devices[name].id = id;
+  acc.devices[name].whole = true;
+  acc.devices[name].parent = id;
+  acc.devices[name].node = caption;
+  acc.devices[name].name = name;
+  acc.devices[name].size = parseInt(size);
+  acc.devices[name].description = desc;
 
   const volume = emptyVolume();
+  volume.id = id;
+  volume.node = id;
   volume.name = volumename || null;
+  volume.parent = id;
   volume.mounted = true;
   volume.mountPoint = name;
   volume.fs = filesystem;
   volume.space.total = parseInt(size);
   volume.space.available = parseInt(space);
   volume.space.used = parseInt(size) - parseInt(space);
-  acc.devices[name][id].volumes = [volume];
+  acc.devices[name].volumes = [volume];
 
   return acc;
 };
 
-export const parseWindows = (parseWindowsProps) => (userFilter) => (output) => compose(
-  filter(userFilter),
+export const parseWindows = (parseWindowsProps) => (userFilter) => compose(
+  ({ devices }) => {
+    return {
+      devices: filter(userFilter, devices)
+    };
+  },
   reduce(
     (acc, v) => parseWindowsProps(acc, v.split(/\t|\s{2,}/)),
-    { devices: {}, volumes: {} }
+    { devices: {} }
   ),
   (a) => a.splice(1),
   filter((s) => s.trim()),
   splitEOL
-)(output);
+);
