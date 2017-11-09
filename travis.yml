@@ -1,0 +1,13 @@
+os:
+  - linux
+  - osx
+cache:
+  yarn: true
+  directories:
+    - "node_modules"
+
+language: node_js
+node_js:
+  - "6"
+  - "8"
+script: yarn
