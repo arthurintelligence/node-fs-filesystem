@@ -135,7 +135,7 @@ describe('common core', function() {
       expect(parserSpy1.calledOnce).to.be.true;
       expect(parserSpy1.calledWith(filter)).to.be.true;
       expect(parserSpy2.calledOnce).to.be.true;
-      expect(parserSpy2.args[0][0].toString()).to.be.equal('Hello World!\n');
+      expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World!${os.EOL}`);
       done();
     });
 
@@ -153,8 +153,8 @@ describe('common core', function() {
 
       const exe = execute(cmd, parser);
       expect(exe.bind(null, filter, null, true)).to.throw(
-        `Command failed: >&2 echo 'Echoed Error'; exit 1\n` +
-        'Echoed Error\n'
+        `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
+        `Echoed Error${os.EOL}`
       );
       done();
     });
@@ -175,7 +175,7 @@ describe('common core', function() {
           expect(parserSpy1.calledOnce).to.be.true;
           expect(parserSpy1.calledWith(filter)).to.be.true;
           expect(parserSpy2.calledOnce).to.be.true;
-          expect(parserSpy2.args[0][0].toString()).to.be.equal('Hello World!\n');
+          expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World!${os.EOL}`);
           expect(callback.calledOnce).to.be.true;
           expect(callback.args[0][0]).to.be.null;
           expect(callback.args[0][1]).to.be.a('string');
@@ -184,7 +184,7 @@ describe('common core', function() {
 
     it('should exec child process and catch an error (sync = false)', function() {
       const cmd = os.platform() === 'win32'
-        ? `1>&2 echo 'Echoed Error'\nexit /b 1`
+        ? `1>&2 echo 'Echoed Error'${os.EOL}exit /b 1`
         : `>&2 echo 'Echoed Error'; exit 1`;
       const parserSpy1 = sinon.spy();
       const parserSpy2 = sinon.spy();
@@ -200,8 +200,8 @@ describe('common core', function() {
           expect(callback.calledOnce).to.be.true;
           expect(callback.args[0][0]).to.be.instanceof(Error);
           expect(callback.args[0][0].message).to.be.equal(
-            `Command failed: >&2 echo 'Echoed Error'; exit 1\n` +
-            'Echoed Error\n'
+            `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
+            `Echoed Error${os.EOL}`
           );
         });
     });
