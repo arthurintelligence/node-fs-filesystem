@@ -233,11 +233,9 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
 export const parseMacOS = (getPropsTarget, addEmptyNode, parseNodeId, parseMacOSToProps) =>
   (userFilter) => (output) => compose(
     // Filter devices according to userFilter
-    ({ devices }) => {
-      return {
-        devices: filter(userFilter, devices)
-      };
-    },
+    ({ devices }) => ({
+      devices: filter(userFilter, devices)
+    }),
     // Map devices[devid].volumes object to an array of volumes (to standardize with other OSes)
     (acc) => {
       acc.devices = each(

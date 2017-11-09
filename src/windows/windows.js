@@ -33,11 +33,9 @@ export const parseWindowsProps =
 };
 
 export const parseWindows = (parseWindowsProps) => (userFilter) => compose(
-  ({ devices }) => {
-    return {
-      devices: filter(userFilter, devices)
-    };
-  },
+  ({ devices }) => ({
+    devices: filter(userFilter, devices)
+  }),
   reduce(
     (acc, v) => parseWindowsProps(acc, v.split(/\t|\s{2,}/)),
     { devices: {} }
