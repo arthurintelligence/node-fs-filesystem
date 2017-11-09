@@ -8,6 +8,9 @@ module.exports = {
   utilities: {
     paths: ['./src/utilities.js']
   },
+  linux: {
+    paths: ['./src/linux/linux.js', './src/linux/index.js']
+  },
   macOS: {
     paths: ['./src/macOS/macOS.js', './src/macOS/index.js']
   },

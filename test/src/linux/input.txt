@@ -1,0 +1,56 @@
+Filesystem     Type     1K-blocks      Used Available Use% Mounted on
+udev           devtmpfs   8033312         0   8033312   0% /dev
+tmpfs          tmpfs      1610744      9616   1601128   1% /run
+/dev/sda2      ext4     224044588 191265856  21374856  90% /
+tmpfs          tmpfs      8053712       300   8053412   1% /dev/shm
+tmpfs          tmpfs         5120         4      5116   1% /run/lock
+tmpfs          tmpfs      8053712         0   8053712   0% /sys/fs/cgroup
+tmpfs          tmpfs      1610744        56   1610688   1% /run/user/1000
+/dev/sdc1      vfat      60530720  52908288   7622432  88% /media/username/KINGSTON
+
+**********
+
+Disk /dev/sda: 232.9 GiB, 250059350016 bytes, 488397168 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931
+
+Device         Start       End   Sectors   Size Type
+/dev/sda1       2048      4095      2048     1M BIOS boot
+/dev/sda2       4096 455503871 455499776 217.2G Linux filesystem
+/dev/sda3  455503872 488396799  32892928  15.7G Linux swap
+
+
+Disk /dev/sdb: 465.8 GiB, 500107862016 bytes, 976773168 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: B282E9C9-533D-3148-3613-30D770D5557B
+
+Device     Start       End   Sectors   Size Type
+/dev/sdb1   2048 976773119 976771072 465.8G Linux filesystem
+
+
+Disk /dev/sdc: 57.8 GiB, 62008590336 bytes, 121110528 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x5b833fe3
+
+Device     Boot Start       End   Sectors  Size Id Type
+/dev/sdc1  *     8064 121110527 121102464 57.8G  c W95 FAT32 (LBA)
+
+**********
+
+KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 850 " TYPE="disk"
+KNAME="sda1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda2" FSTYPE="ext4" MOUNTPOINT="/" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda3" FSTYPE="swap" MOUNTPOINT="[SWAP]" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="TOSHIBA MK5061GS" TYPE="disk"
+KNAME="sdb1" FSTYPE="ext4" MOUNTPOINT="" LABEL="Data Drive" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdc" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="1" MODEL="DataTraveler 3.0" TYPE="disk"
+KNAME="sdc1" FSTYPE="vfat" MOUNTPOINT="/media/username/KINGSTON" LABEL="KINGSTON" RO="0" RM="1" MODEL="" TYPE="part"

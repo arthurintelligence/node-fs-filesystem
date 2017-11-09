@@ -1,5 +1,5 @@
 import R from 'ramda';
-const { compose, composeP, map, mapAccum, reduce } = R;
+const { compose, composeP, map, mapAccum } = R;
 
 // I :: a -> a
 const I = (x) => x;
@@ -20,6 +20,28 @@ const S = (f, g) => g
 const each = (f, x) => x
   ? !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x)
   : (x) => !Array.isArray(x) ? R.forEachObjIndexed(f, x) : R.forEach(f, x);
+
+// reductor :: ((a, b, x) -> a), a, x -> a
+const reductor = (f, a, x) => {
+  if(Array.isArray(x)){
+    return x.reduce(f, a);
+  }else{
+    let acc = a;
+    for(let k in x){
+      acc = f(acc, x[k], k, x);
+    }
+    return acc;
+  }
+};
+
+// reduce :: ((a, b, x) -> a) -> a -> x -> a
+// reduce :: ((a, b, x) -> a), a -> x -> a
+// reduce :: ((a, b, x) -> a), a, x -> a
+const reduce = (f, a, x) => x
+  ? reductor(f, a, x)
+  : a
+    ? (x) => reductor(f, a, x)
+    : (a, x) => x ? reductor(f, a, x) : (x) => reductor(f, a, x);
 
 // filter :: Object -> Object
 const filterObjIndexed = (f, x) => {

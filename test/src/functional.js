@@ -225,6 +225,91 @@ describe('functional utilities', function () {
     });
   });
 
+  describe('reduce', function () {
+    it('reduce(f) should return a curried function', function (done) {
+      const f = () => {};
+      expect(F.R.reduce(f)).to.be.a('function');
+      done();
+    });
+
+    it('reduce(f, a) should return a curried function', function (done) {
+      const f = () => {};
+      const a = {};
+      expect(F.R.reduce(f, a)).to.be.a('function');
+      done();
+    });
+
+    it('reduce(f)(a) should return a curried function', function (done) {
+      const f = () => {};
+      const a = {};
+      expect(F.R.reduce(f)(a)).to.be.a('function');
+      done();
+    });
+
+    it('reduce(f)(a) should return the same function definition as reduce(f, a)', function (done) {
+      const f = () => {};
+      const a = {};
+      expect(JSON.stringify(F.R.reduce(f)(a))).to.be.equal(JSON.stringify(F.R.reduce(f, a)));
+      done();
+    });
+
+    it('should reduce third argument (array)', function (done) {
+      // reduce(f, a, x)
+      const fspy = sinon.spy();
+      const f = (a, v) => { fspy(v); return a + 2 * v; };
+      const x = [1, 2, 3];
+
+      const a = F.R.reduce(f, 0, x);
+      expect(fspy.callCount).to.be.equal(3);
+      const fcalls = fspy.getCalls();
+      expect(fcalls[0].calledWithExactly(1)).to.be.true;
+      expect(fcalls[1].calledWithExactly(2)).to.be.true;
+      expect(fcalls[2].calledWithExactly(3)).to.be.true;
+      expect(a).to.be.equal(12);
+
+      // reduce(f)(a)(x)
+      const gspy = sinon.spy();
+      const g = (a, v) => { gspy(v); return a + 2 * v; };
+      const y = [1, 2, 3];
+
+      const b = F.R.reduce(g)(0)(y);
+      expect(gspy.callCount).to.be.equal(3);
+      const gcalls = gspy.getCalls();
+      expect(gcalls[0].calledWithExactly(1)).to.be.true;
+      expect(gcalls[1].calledWithExactly(2)).to.be.true;
+      expect(gcalls[2].calledWithExactly(3)).to.be.true;
+      expect(b).to.be.equal(12);
+      done();
+    });
+
+    it('should filter second argument (object)', function (done) {
+      const fspy = sinon.spy();
+      const f = (a, v, k, o) => { fspy(a, v, k, o); return a + 2 * v; };
+      const x = { a: 1, b: 2, c: 3 };
+
+      const a = F.R.reduce(f, 0, x);
+      expect(fspy.callCount).to.be.equal(3);
+      const fcalls = fspy.getCalls();
+      expect(fcalls[0].calledWith(0, 1, 'a', x)).to.be.true;
+      expect(fcalls[1].calledWith(2, 2, 'b', x)).to.be.true;
+      expect(fcalls[2].calledWith(6, 3, 'c', x)).to.be.true;
+      expect(a).to.be.equal(12);
+
+      const gspy = sinon.spy();
+      const g = (a, v, k, o) => { gspy(a, v, k, o); return a + 2 * v; };
+      const y = { a: 1, b: 2, c: 3 };
+
+      const b = F.R.reduce(g)(0)(y);
+      expect(gspy.callCount).to.be.equal(3);
+      const gcalls = gspy.getCalls();
+      expect(gcalls[0].calledWith(0, 1, 'a', y)).to.be.true;
+      expect(gcalls[1].calledWith(2, 2, 'b', y)).to.be.true;
+      expect(gcalls[2].calledWith(6, 3, 'c', y)).to.be.true;
+      expect(b).to.be.equal(12);
+      done();
+    });
+  });
+
   describe('ifElse', function () {
     it('should return function if not passed a value', function (done) {
       expect(F.ifElse(() => {}, () => {}, () => {})).to.be.a('function');
