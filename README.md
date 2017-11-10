@@ -7,7 +7,7 @@ of the system.
 [![npm version](https://badge.fury.io/js/fs-filesystem.svg)](https://www.npmjs.com/package/misstep)
 [![Travis Build Status](https://travis-ci.org/qzdio/node-fs-filesystem.svg?branch=master)](https://travis-ci.org/we-human-space/misstep)
 [![Windows Build Status](https://img.shields.io/appveyor/ci/philippefutureboy/node-fs-filesystem/master.svg?label=windows%20build)](https://ci.appveyor.com/project/philippefutureboy/node-fs-filesystem/branch/master)
-[![Coverage Status](https://coveralls.io/repos/qzdio/node-fs-filesystem/badge.svg?branch=master&service=github)](https://coveralls.io/github/qzdio/node-fs-filesystem?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/qzdio/node-fs-filesystem/badge.svg?branch=master)](https://coveralls.io/github/qzdio/node-fs-filesystem?branch=master)
 [![Dependencies Status](https://david-dm.org/qzdio/node-fs-filesystem.svg)](https://david-dm.org/)
 
 ## Why?

@@ -31,7 +31,7 @@ test_script:
   - npm --version
   - yarn --version
   # run tests
-  - yarn run test
+  - yarn run test:ci
 
 # Don't actually build.
 build: off
