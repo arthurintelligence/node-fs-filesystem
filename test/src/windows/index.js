@@ -22,6 +22,7 @@ describe('windows integration tests', function(){
         const input = child.execSync(windows.COMMAND).toString();
         const userFilter = () => true;
         const acc = windows.parser(userFilter)(input);
+        console.log(JSON.stringify(acc.devices));
         expect(acc).to.be.an('object').that.has.keys('devices');
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
@@ -55,6 +56,7 @@ describe('windows integration tests', function(){
       const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString('utf-16le').replace('\r\n', os.EOL);
       const userFilter = () => true;
       const acc = windows.parser(userFilter)(input);
+      console.log(JSON.stringify(acc.devices));
       expect(acc).to.be.an('object').that.has.keys('devices');
       expect(acc.devices).to.be.an('object');
       expect(Object.keys(acc.devices).length).to.be.equal(4);

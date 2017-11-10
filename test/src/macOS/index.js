@@ -22,6 +22,7 @@ describe('macOS integration tests', function() {
         const input = child.execSync(macOS.COMMAND).toString();
         const userFilter = () => true;
         const acc = macOS.parser(userFilter)(input);
+        console.log(JSON.stringify(acc.devices));
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
