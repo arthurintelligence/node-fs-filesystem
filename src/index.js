@@ -28,7 +28,7 @@ const validateDev = cond(
     a: (dev) => (v, k) => dev.test(k)
   },
   {
-    c: (dev) => typeof dev === 'undefined' || (!dev && typeof dev === 'object'),
+    c: (dev) => typeof dev === 'undefined' || dev === null,
     a: (dev) => tautology
   },
   {

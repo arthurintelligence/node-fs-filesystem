@@ -1,4 +1,4 @@
-import F from '../debug';
+import F from '../functional';
 import { lasti, hasSubstr, splitEOL } from '../utilities';
 const { constant, ifElse, each } = F;
 const { compose, map, reduce, filter } = F.R;

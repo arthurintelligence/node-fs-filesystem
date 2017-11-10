@@ -13,11 +13,15 @@
     "lint": "npm run lint:fix",
     "lint:warn": "eslint ./**/*.js",
     "lint:fix": "eslint --fix ./**/*.js",
-    "test": "npm run lint && npm run unit",
+    "test": "npm run lint && nyc npm run unit && nyc report --reporter=lcov",
+    "test:ci": "npm run lint && nyc npm run unit && nyc report --reporter=text-lcov | coveralls",
+    "test:no-cov": "npm run lint && npm run unit",
     "unit": "mocha --require babel-register"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
+    "coveralls": "^3.0.0",
+    "mocha-lcov-reporter": "^1.3.0",
     "ramda": "^0.25.0"
   },
   "devDependencies": {

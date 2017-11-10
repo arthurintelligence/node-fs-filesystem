@@ -18,6 +18,7 @@ describe('linux integration tests', function() {
     eqeqeq('linux'),
     () => function(){
       it('should properly parse the output of the filesystem command', function(done){
+        this.timeout(5000);
         const input = child.execSync(linux.COMMAND).toString();
         const userFilter = () => true;
         const acc = linux.parser(userFilter)(input);
@@ -60,6 +61,7 @@ describe('linux integration tests', function() {
       const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace('\n', os.EOL);
       const userFilter = () => true;
       const acc = linux.parser(userFilter)(input);
+      console.log(acc);
       expect(acc.devices).to.be.an('object');
       expect(Object.keys(acc.devices).length).to.be.at.least(1);
       for(const k in acc.devices){

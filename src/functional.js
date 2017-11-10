@@ -69,7 +69,11 @@ const condr = function condr (x, i, cs) {
 
 // cond :: [{ c: (x -> Bool), a: (x -> *)}] -> x -> *
 const cond = function cond (...cases) {
-  return (x) => ifElse((cs) => cs.length, (cs) => condr(x, 0, cs), K(x))(cases);
+  return (x) => ifElse(
+    (cs) => cs.length,
+    (cs) => condr(x, 0, cs),
+    () => I(x)
+  )(cases);
 };
 
 // tap :: Function -> a -> a

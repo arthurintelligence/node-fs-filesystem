@@ -122,7 +122,7 @@ describe('common core', function() {
     const execute = fsfilesystem.__get__('execute');
 
     it('should exec child process and feed the output in curried parser (sync = true)', function(done) {
-      const cmd = `echo 'Hello World!'`;
+      const cmd = `echo Hello World`;
       const parserSpy1 = sinon.spy();
       const parserSpy2 = sinon.spy();
       const filter = () => {};
@@ -135,7 +135,7 @@ describe('common core', function() {
       expect(parserSpy1.calledOnce).to.be.true;
       expect(parserSpy1.calledWith(filter)).to.be.true;
       expect(parserSpy2.calledOnce).to.be.true;
-      expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World!${os.EOL}`);
+      expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World${os.EOL}`);
       done();
     });
 
@@ -160,7 +160,7 @@ describe('common core', function() {
     });
 
     it('should exec child process and feed the output in curried parser, then callback (sync = false)', function() {
-      const cmd = `echo 'Hello World!'`;
+      const cmd = `echo Hello World`;
       const parserSpy1 = sinon.spy();
       const parserSpy2 = sinon.spy();
       const filter = () => {};
@@ -175,7 +175,7 @@ describe('common core', function() {
           expect(parserSpy1.calledOnce).to.be.true;
           expect(parserSpy1.calledWith(filter)).to.be.true;
           expect(parserSpy2.calledOnce).to.be.true;
-          expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World!${os.EOL}`);
+          expect(parserSpy2.args[0][0].toString()).to.be.equal(`Hello World${os.EOL}`);
           expect(callback.calledOnce).to.be.true;
           expect(callback.args[0][0]).to.be.null;
           expect(callback.args[0][1]).to.be.a('string');

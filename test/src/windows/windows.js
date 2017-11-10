@@ -83,5 +83,32 @@ describe('windows unit tests', function(){
       });
       done();
     });
+
+    it('should return a properly formatted object listing devices (duplicate device)', function(done) {
+      const acc = { devices: { 'D:': {} } };
+      const input = ['D:', 'CD-ROM Disc', 'D:', 'CDFS', '0', 'D:', '59494400', 'VBOXADDITIONS_5.'];
+      parseWindowsProps(acc, input);
+      expect(acc).to.be.an('object').that.has.keys('devices');
+      expect(acc.devices).to.be.an('object');
+      expect(Object.keys(acc.devices).length).to.be.equal(1);
+
+      expect(acc.devices[input[0]].id).to.be.a('string');
+      expect(acc.devices[input[0]].node).to.be.a('string');
+      expect(acc.devices[input[0]].name).to.be.a('string');
+      expect(acc.devices[input[0]].size).to.be.a('number').that.is.gte(0);
+      expect(acc.devices[input[0]].description).to.be.a('string');
+      expect(acc.devices[input[0]].volumes).to.be.an('array').that.is.not.empty;
+      acc.devices[input[0]].volumes.forEach((v) => {
+        expect(typeof v.name === 'string' || v.name === null).to.be.true;
+        expect(v.mounted).to.be.true;
+        expect(v.mountPoint).to.be.equal(input[0]);
+        expect(v.fs).to.be.a('string');
+        expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
+        expect(v.space.total).to.be.a('number').that.is.gte(0);
+        expect(v.space.available).to.be.a('number').that.is.gte(0);
+        expect(v.space.used).to.be.a('number').that.is.gte(0);
+      });
+      done();
+    });
   });
 });

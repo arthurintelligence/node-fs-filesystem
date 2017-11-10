@@ -18,10 +18,11 @@ describe('windows integration tests', function(){
     eqeqeq('win32'),
     () => function(){
       it('should properly parse the output of the filesystem command', function(done){
+        this.timeout(5000);
         const input = child.execSync(windows.COMMAND).toString();
         const userFilter = () => true;
         const acc = windows.parser(userFilter)(input);
-        expect(acc).to.be.an('object').that.includes('devices');
+        expect(acc).to.be.an('object').that.has.keys('devices');
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(let k in acc.devices){
@@ -32,7 +33,7 @@ describe('windows integration tests', function(){
           expect(acc.devices[k].description).to.be.a('string');
           expect(acc.devices[k].volumes).to.be.an('array').that.is.not.empty;
           acc.devices[k].volumes.forEach((v) => {
-            expect(v.name).to.be.a('string');
+            expect(typeof v.name === 'string' || v.name === null).to.be.true;
             expect(v.mounted).to.be.true;
             expect(v.mountPoint).to.be.equal(k);
             expect(v.fs).to.be.a('string');
@@ -51,7 +52,7 @@ describe('windows integration tests', function(){
 
   describe('non-native tests', function() {
     it('should properly parse the provided static input', function(done){
-      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString('utf-16le').replace('\r\n', '\n');
+      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString('utf-16le').replace('\r\n', os.EOL);
       const userFilter = () => true;
       const acc = windows.parser(userFilter)(input);
       expect(acc).to.be.an('object').that.has.keys('devices');

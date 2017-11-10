@@ -337,7 +337,7 @@ describe('linux unit tests', function(){
 
     it('should update the blocks and description properties of an existing device ' +
       'node', function(done){
-      const input = ['sdc1', 'vfat', '/media/username/KINGSTON', 'KINGSTON', '0', '1', '', 'part'];
+      const input = ['sdc1', 'vfat', '/media/username/KINGSTON', '', '0', '1', '', 'part'];
       const sdc1 = emptyVolume();
       sdc1.node = '/dev/sdz1';
       sdc1.id = 'sdz1';
@@ -360,7 +360,7 @@ describe('linux unit tests', function(){
       expect(acc.volumes.sdc1.mountPoint).to.be.equal('/media/username/KINGSTON');
       expect(acc.volumes.sdc1.readOnly).to.be.false;
       expect(acc.volumes.sdc1.removable).to.be.true;
-      expect(acc.volumes.sdc1.description).to.be.equal('KINGSTON');
+      expect(acc.volumes.sdc1.description).to.be.null;
       done();
     });
   });
@@ -491,10 +491,13 @@ describe('linux unit tests', function(){
       parseLinux(mergeVolumesAndDevicesLinux, parselsblk, parsefdiskl, parsedfT)(userFilter)(input);
       expect(parsedfTSpy.callCount).to.be.equal(1);
       expect(parsedfTSpy.getCall(0).calledWith(dftinput)).to.be.true;
+      console.log(parsedfTSpy.args[0][0]);
       expect(parsefdisklSpy.callCount).to.be.equal(1);
       expect(parsefdisklSpy.getCall(0).calledWith(fdiskinput)).to.be.true;
+      console.log(parsefdisklSpy.args[0][0]);
       expect(parselsblkSpy.callCount).to.be.equal(1);
       expect(parselsblkSpy.getCall(0).calledWith(lsblkinput)).to.be.true;
+      console.log(parselsblkSpy.args[0][0]);
       done();
     });
 

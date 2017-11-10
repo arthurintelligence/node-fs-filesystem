@@ -18,6 +18,7 @@ describe('macOS integration tests', function() {
     eqeqeq('darwin'),
     () => function(){
       it('should properly parse the output of the filesystem command', function(done){
+        this.timeout(5000);
         const input = child.execSync(macOS.COMMAND).toString();
         const userFilter = () => true;
         const acc = macOS.parser(userFilter)(input);

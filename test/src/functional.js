@@ -279,10 +279,24 @@ describe('functional utilities', function () {
       expect(gcalls[1].calledWithExactly(2)).to.be.true;
       expect(gcalls[2].calledWithExactly(3)).to.be.true;
       expect(b).to.be.equal(12);
+
+      // reduce(f)(a, x)
+      const hspy = sinon.spy();
+      const h = (a, v) => { hspy(v); return a + 2 * v; };
+      const z = [1, 2, 3];
+
+      const c = F.R.reduce(h)(0, z);
+      expect(hspy.callCount).to.be.equal(3);
+      const hcalls = hspy.getCalls();
+      expect(hcalls[0].calledWithExactly(1)).to.be.true;
+      expect(hcalls[1].calledWithExactly(2)).to.be.true;
+      expect(hcalls[2].calledWithExactly(3)).to.be.true;
+      expect(c).to.be.equal(12);
       done();
     });
 
     it('should filter second argument (object)', function (done) {
+      // reduce(f, a, x)
       const fspy = sinon.spy();
       const f = (a, v, k, o) => { fspy(a, v, k, o); return a + 2 * v; };
       const x = { a: 1, b: 2, c: 3 };
@@ -295,6 +309,7 @@ describe('functional utilities', function () {
       expect(fcalls[2].calledWith(6, 3, 'c', x)).to.be.true;
       expect(a).to.be.equal(12);
 
+      // reduce(f)(a)(x)
       const gspy = sinon.spy();
       const g = (a, v, k, o) => { gspy(a, v, k, o); return a + 2 * v; };
       const y = { a: 1, b: 2, c: 3 };
@@ -306,6 +321,19 @@ describe('functional utilities', function () {
       expect(gcalls[1].calledWith(2, 2, 'b', y)).to.be.true;
       expect(gcalls[2].calledWith(6, 3, 'c', y)).to.be.true;
       expect(b).to.be.equal(12);
+
+      // reduce(f)(a, x)
+      const hspy = sinon.spy();
+      const h = (a, v, k, o) => { hspy(a, v, k, o); return a + 2 * v; };
+      const z = { a: 1, b: 2, c: 3 };
+
+      const c = F.R.reduce(h)(0)(z);
+      expect(hspy.callCount).to.be.equal(3);
+      const hcalls = hspy.getCalls();
+      expect(hcalls[0].calledWith(0, 1, 'a', z)).to.be.true;
+      expect(hcalls[1].calledWith(2, 2, 'b', z)).to.be.true;
+      expect(hcalls[2].calledWith(6, 3, 'c', z)).to.be.true;
+      expect(c).to.be.equal(12);
       done();
     });
   });
@@ -505,6 +533,18 @@ describe('functional utilities', function () {
 
       for(let i = 0; i < 10; i++) test(i);
 
+      done();
+    });
+
+    it('should return the value if no condition is provided', function(done){
+      const x = {};
+      expect(F.cond()(x)).to.be.equal(x);
+      done();
+    });
+
+    it('should return the value if no condition matches value is provided', function(done){
+      const x = {};
+      expect(F.cond({ c: () => false, a: () => {} })(x)).to.be.equal(x);
       done();
     });
   });
