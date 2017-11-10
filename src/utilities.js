@@ -20,7 +20,7 @@ export const emptyDevice = () => {
   return {
     id: null,
     node: null,
-    whole: null,
+    whole: false,
     parent: null,
     name: null,
     size: null,

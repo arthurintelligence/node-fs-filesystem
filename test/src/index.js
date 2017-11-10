@@ -211,45 +211,57 @@ describe('common core', function() {
     const filesystem = fsfilesystem.__get__('filesystem');
 
     it('should call the appropriate os function (macOS)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = () => { macOSSpy(); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = () => { linuxSpy(); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = () => { windowsSpy(); return { devices: {} }; };
       const validate = () => [() => {}, () => {}];
       filesystem(macOS, linux, windows, validate, 'darwin')('dev', () => {});
-      expect(macOS.calledOnce).to.be.true;
-      expect(linux.notCalled).to.be.true;
-      expect(windows.notCalled).to.be.true;
+      expect(macOSSpy.calledOnce).to.be.true;
+      expect(linuxSpy.notCalled).to.be.true;
+      expect(windowsSpy.notCalled).to.be.true;
       done();
     });
 
     it('should call the appropriate os function (linux)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = () => { macOSSpy(); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = () => { linuxSpy(); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = () => { windowsSpy(); return { devices: {} }; };
       const validate = () => [() => {}, () => {}];
       filesystem(macOS, linux, windows, validate, 'linux')('dev', () => {});
-      expect(macOS.notCalled).to.be.true;
-      expect(linux.calledOnce).to.be.true;
-      expect(windows.notCalled).to.be.true;
+      expect(macOSSpy.notCalled).to.be.true;
+      expect(linuxSpy.calledOnce).to.be.true;
+      expect(windowsSpy.notCalled).to.be.true;
       done();
     });
 
     it('should call the appropriate os function (windows)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = () => { macOSSpy(); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = () => { linuxSpy(); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = () => { windowsSpy(); return { devices: {} }; };
       const validate = () => [() => {}, () => {}];
       filesystem(macOS, linux, windows, validate, 'win32')('dev', () => {});
-      expect(macOS.notCalled).to.be.true;
-      expect(linux.notCalled).to.be.true;
-      expect(windows.calledOnce).to.be.true;
+      expect(macOSSpy.notCalled).to.be.true;
+      expect(linuxSpy.notCalled).to.be.true;
+      expect(windowsSpy.calledOnce).to.be.true;
       done();
     });
 
     it('should throw an error for unsupported OSes', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = () => { macOSSpy(); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = () => { linuxSpy(); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = () => { windowsSpy(); return { devices: {} }; };
       const validate = () => [() => {}, () => {}];
       const aix = filesystem(macOS, linux, windows, validate, 'aix');
       const freebsd = filesystem(macOS, linux, windows, validate, 'freebsd');
@@ -284,51 +296,63 @@ describe('common core', function() {
     const filesystemSync = fsfilesystem.__get__('filesystemSync');
 
     it('should call the appropriate os function with sync = true (macOS)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = (...args) => { macOSSpy(...args); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = (...args) => { linuxSpy(...args); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = (...args) => { windowsSpy(...args); return { devices: {} }; };
       const dev = () => {};
       const validate = () => dev;
       filesystemSync(macOS, linux, windows, validate, 'darwin')('dev', () => {});
-      expect(macOS.calledOnce).to.be.true;
-      expect(linux.notCalled).to.be.true;
-      expect(windows.notCalled).to.be.true;
-      expect(macOS.calledWith(validate(), null, true)).to.be.true;
+      expect(macOSSpy.calledOnce).to.be.true;
+      expect(linuxSpy.notCalled).to.be.true;
+      expect(windowsSpy.notCalled).to.be.true;
+      expect(macOSSpy.calledWith(validate(), null, true)).to.be.true;
       done();
     });
 
     it('should call the appropriate os function with sync = true (linux)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = (...args) => { macOSSpy(...args); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = (...args) => { linuxSpy(...args); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = (...args) => { windowsSpy(...args); return { devices: {} }; };
       const dev = () => {};
       const validate = () => dev;
       filesystemSync(macOS, linux, windows, validate, 'linux')('dev', () => {});
-      expect(macOS.notCalled).to.be.true;
-      expect(linux.calledOnce).to.be.true;
-      expect(windows.notCalled).to.be.true;
-      expect(linux.calledWith(validate(), null, true)).to.be.true;
+      expect(macOSSpy.notCalled).to.be.true;
+      expect(linuxSpy.calledOnce).to.be.true;
+      expect(windowsSpy.notCalled).to.be.true;
+      expect(linuxSpy.calledWith(validate(), null, true)).to.be.true;
       done();
     });
 
     it('should call the appropriate os function with sync = true (windows)', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = (...args) => { macOSSpy(...args); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = (...args) => { linuxSpy(...args); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = (...args) => { windowsSpy(...args); return { devices: {} }; };
       const dev = () => {};
       const validate = () => dev;
       filesystemSync(macOS, linux, windows, validate, 'win32')('dev', () => {});
-      expect(macOS.notCalled).to.be.true;
-      expect(linux.notCalled).to.be.true;
-      expect(windows.calledOnce).to.be.true;
-      expect(windows.calledWith(validate(), null, true)).to.be.true;
+      expect(macOSSpy.notCalled).to.be.true;
+      expect(linuxSpy.notCalled).to.be.true;
+      expect(windowsSpy.calledOnce).to.be.true;
+      expect(windowsSpy.calledWith(validate(), null, true)).to.be.true;
       done();
     });
 
     it('should throw an error for unsupported OSes', function(done) {
-      const macOS = sinon.spy();
-      const linux = sinon.spy();
-      const windows = sinon.spy();
+      const macOSSpy = sinon.spy();
+      const macOS = (...args) => { macOSSpy(...args); return { devices: {} }; };
+      const linuxSpy = sinon.spy();
+      const linux = (...args) => { linuxSpy(...args); return { devices: {} }; };
+      const windowsSpy = sinon.spy();
+      const windows = (...args) => { windowsSpy(...args); return { devices: {} }; };
       const dev = () => {};
       const validate = () => dev;
       const aix = filesystemSync(macOS, linux, windows, validate, 'aix');

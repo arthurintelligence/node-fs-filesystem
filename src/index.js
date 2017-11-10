@@ -72,15 +72,15 @@ const execute = (cmd, parser) => (filter, cb, sync = false) => ifElse(
 const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => cond(
   {
     c: eqeqeq('darwin'),
-    a: () => macOS(...validate(dev, callback))
+    a: () => macOS(...validate(dev, callback)).devices
   },
   {
     c: eqeqeq('linux'),
-    a: () => linux(...validate(dev, callback))
+    a: () => linux(...validate(dev, callback)).devices
   },
   {
     c: eqeqeq('win32'),
-    a: () => windows(...validate(dev, callback))
+    a: () => windows(...validate(dev, callback)).devices
   },
   {
     c: tautology,
@@ -94,15 +94,15 @@ const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback
 const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) => cond(
   {
     c: eqeqeq('darwin'),
-    a: () => macOS(validateDev(dev), null, true)
+    a: () => macOS(validateDev(dev), null, true).devices
   },
   {
     c: eqeqeq('linux'),
-    a: () => linux(validateDev(dev), null, true)
+    a: () => linux(validateDev(dev), null, true).devices
   },
   {
     c: eqeqeq('win32'),
-    a: () => windows(validateDev(dev), null, true)
+    a: () => windows(validateDev(dev), null, true).devices
   },
   {
     c: tautology,
