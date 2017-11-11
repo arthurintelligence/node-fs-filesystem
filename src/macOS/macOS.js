@@ -1,5 +1,5 @@
 import F from '../functional';
-import { hasSubstr, getYesNo, splitEOL, emptyDevice, emptyVolume } from '../utilities';
+import { hasSubstr, getYesNo, emptyDevice, emptyVolume } from '../utilities';
 const { identity, cond, each, tap, tautology } = F;
 const { compose, map, reduce, filter } = F.R;
 

@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { emptyDevice, emptyVolume } from '../../../src/utilities';
 import {
-  COMMAND,
   getNodeId,
   createNewDevice,
   createNewVolume,
