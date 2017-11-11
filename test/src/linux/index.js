@@ -27,7 +27,11 @@ describe('linux integration tests', function() {
         for(const k in acc.devices){
           expect(acc.devices[k].id).to.be.a('string');
           expect(acc.devices[k].node).to.be.a('string');
-          expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
+          if(process.env.TRAVIS){
+            expect(acc.devices[k].size).to.be.null;
+          }else{
+            expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
+          }
           expect(acc.devices[k].volumes).to.be.an('array');
           acc.devices[k].volumes.forEach((v) => {
             expect(typeof v.name === 'string' || v.name === null).to.be.true;
