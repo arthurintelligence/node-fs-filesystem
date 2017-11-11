@@ -58,7 +58,7 @@ typings/
 .env
 
 # build files
-dist
+lib
 
 # MacOS Finder
 .DS_Store

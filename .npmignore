@@ -1,0 +1,7 @@
+/src/
+/test/
+.coveralls.yml
+.eslintignore
+.estlintrc.json
+.travis.yml
+appvevoyor.yml

@@ -12,11 +12,26 @@ of the system.
 
 ## Why?
 
-Because sometimes your desktop applications need information about the filesystem (~~\*cough\* like on Windows \*cough\*~~)
+Because sometimes your desktop applications need information about the filesystem
+(~~\*cough\* like on Windows \*cough\*~~)
 
 ## Installation
 
 `npm install --save fs-filesystem`
+
+## Native Dependencies
+
+Bear in mind that this utility *shells out* to the machine, and thus requires the
+host to be able to run such commands. If any of the commands listed below are
+missing from your OS, the utility **will** throw a `Command Failed: ...` error. This
+shouldn't be a problem however since these are standard, core commands generally
+available on their respective distros (well, except maybe minimal Linux distros
+like Arch and Alpine), so you should be fine :)
+
+* **Linux:** `df`, `fdisk`, `lsblk`
+* **MacOS:** `diskutil`
+* **Windows:** `wmic`
+
 
 ## API
 
@@ -79,7 +94,7 @@ whether networked, internal or external/removable. Their respective volumes are
 available as an array of volumes under the `device.volumes` property.
 Linux and MacOS users will be pleased
 with the amount of detail available - **block size**, **partition type**, **filesystem**, **mounted**, **mount point**, **blocks**, and more is available. Windows users fall
-on the short straw however with a much less rich output. this is because (a) the
+on the short straw however with a much less rich output. This is because (a) the
 main maintainer of `fs-filesystem` has very little knowledge of DOS/PowerShell utilities
 and (b) there seems to be very little filesystem utilities available on Windows
 that do not require elevated privileges. So if you are a Windows DemiGod, feel free
@@ -261,7 +276,7 @@ to enlighten us :rocket:
 You can find a list of the types of each field below. Keep in mind that **all
 fields besides `whole` are null by default**, and that integers are all in **bytes**.
 
-### Devices
+#### Devices
 
 ```
 id: string,
@@ -277,7 +292,7 @@ readOnly: boolean,
 removable: boolean
 ```
 
-### volumes
+#### Volumes
 
 ```
 id: string,
