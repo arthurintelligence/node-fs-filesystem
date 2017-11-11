@@ -35,7 +35,11 @@ describe('linux integration tests', function() {
           expect(acc.devices[k].volumes).to.be.an('array');
           acc.devices[k].volumes.forEach((v) => {
             expect(typeof v.name === 'string' || v.name === null).to.be.true;
-            expect(v.description).to.be.a('string');
+            if(process.env.TRAVIS){
+              expect(v.description).to.be.null;
+            }else{
+              expect(v.description).to.be.a('string');
+            }
             expect(v.mounted).to.be.a('boolean');
             expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
             expect(
