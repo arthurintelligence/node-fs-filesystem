@@ -3,18 +3,26 @@ matrix:
     - os: linux
       language: node_js
       node_js: "6"
+      env:
+        - TRAVIS=true
     - os: linux
       language: node_js
       node_js: "8"
+      env:
+        - TRAVIS=true
     - os: osx
       language: node_js
       node_js: "6"
+      env:
+        - TRAVIS=true
     - os: osx
       language: node_js
       node_js: "8"
+      env:
+        - TRAVIS=true
 cache:
   yarn: true
   directories:
     - "node_modules"
 script:
-  - env TRAVIS=true yarn run test:ci
+  - yarn run test:ci
