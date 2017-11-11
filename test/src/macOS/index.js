@@ -27,11 +27,7 @@ describe('macOS integration tests', function() {
         for(const k in acc.devices){
           expect(acc.devices[k].id).to.be.a('string');
           expect(acc.devices[k].node).to.be.a('string');
-          if(process.env.TRAVIS){
-            expect(acc.devices[k].size).to.be.null;
-          }else{
-            expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
-          }
+          expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
           expect(acc.devices[k].description).to.be.a('string');
           expect(acc.devices[k].volumes).to.be.an('array');
           acc.devices[k].volumes.forEach((v) => {
