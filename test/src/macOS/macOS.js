@@ -194,6 +194,7 @@ describe('macOS unit tests', function(){
       'Partition Type': { target: 'volume', key: 'partitionType', value: 'EFI', nullable: false },
       'Protocol': { target: 'device', key: 'protocol', value: 'SATA', nullable: false },
       'Disk Size': { target: 'device', key: 'size', value: '209.7 MB (209715200 Bytes) (exactly 409600 512-Byte-Units)', nullable: false },
+      'Total Size': { target: 'device', key: 'size', value: '209.7 MB (209715200 Bytes) (exactly 409600 512-Byte-Units)', nullable: false },
       'Device Block Size': { target: 'device', key: 'blockSize', value: '512 Bytes', nullable: false },
       'Volume Total Space': { target: 'volume', key: 'space.total', value: '209.7 MB (209715200 Bytes) (exactly 409600 512-Byte-Units)', nullable: false },
       'Volume Used Space': { target: 'volume', key: 'space.used', value: '209.7 MB (209715200 Bytes) (exactly 409600 512-Byte-Units)', nullable: false },
@@ -225,7 +226,7 @@ describe('macOS unit tests', function(){
       }
       // Check that all lower order functions have been called the expected number of times
       expect(macOSFSSpy.callCount).to.be.equal(1);
-      expect(getMacOSBSpy.callCount).to.be.equal(4);
+      expect(getMacOSBSpy.callCount).to.be.equal(5);
       done();
     });
 

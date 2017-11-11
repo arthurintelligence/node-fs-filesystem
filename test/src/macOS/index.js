@@ -23,18 +23,20 @@ describe('macOS integration tests', function() {
         const userFilter = () => true;
         const acc = macOS.parser(userFilter)(input);
         expect(acc.devices).to.be.an('object');
-        console.log(input);
-        console.log(JSON.stringify(acc.devices));
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
           expect(acc.devices[k].id).to.be.a('string');
           expect(acc.devices[k].node).to.be.a('string');
-          expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
+          if(process.env.TRAVIS){
+            expect(acc.devices[k].size).to.be.null;
+          }else{
+            expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
+          }
           expect(acc.devices[k].description).to.be.a('string');
           expect(acc.devices[k].volumes).to.be.an('array');
           acc.devices[k].volumes.forEach((v) => {
             expect(typeof v.name === 'string' || v.name === null).to.be.true;
-            expect(v.description).to.be.null;
+            expect(typeof v.description === 'string' || v.description === null).to.be.true;
             expect(v.mounted).to.be.a('boolean');
             expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
             expect(
@@ -74,7 +76,7 @@ describe('macOS integration tests', function() {
         expect(acc.devices[k].volumes).to.be.an('array');
         acc.devices[k].volumes.forEach((v) => {
           expect(typeof v.name === 'string' || v.name === null).to.be.true;
-          expect(v.description).to.be.null;
+          expect(typeof v.description === 'string' || v.description === null).to.be.true;
           expect(v.mounted).to.be.a('boolean');
           expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
           expect(

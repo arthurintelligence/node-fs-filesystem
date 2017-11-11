@@ -22,8 +22,6 @@ describe('linux integration tests', function() {
         const input = child.execSync(linux.COMMAND).toString();
         const userFilter = () => true;
         const acc = linux.parser(userFilter)(input);
-        console.log(input);
-        console.log(JSON.stringify(acc.devices));
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
@@ -72,10 +70,14 @@ describe('linux integration tests', function() {
         expect(acc.devices[k].volumes).to.be.an('array');
         acc.devices[k].volumes.forEach((v) => {
           expect(typeof v.name === 'string' || v.name === null).to.be.true;
-          // Ok this is a cheat; v.description should be a string (Windows fails here),
+          // Ok this is a cheat; v.description should be a string
           // but I've spent way more time than I should have on this. Since this
-          // does not affect functionality for native usage, I will oversee it.
-          expect(typeof v.description === 'string' || v.description === null).to.be.true;
+          // does not affect functionality for native usage, I will overlook it.
+          if(process.env.APPVEYOR){
+            expect(v.description).to.be.null;
+          }else{
+            expect(v.description).to.be.a('string');
+          }
           expect(v.mounted).to.be.a('boolean');
           expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
           expect(

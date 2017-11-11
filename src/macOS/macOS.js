@@ -91,7 +91,7 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
       mapper: (node, value) => { node.parent = value; }
     },
     'Device / Media Name': {
-      target: 'device',
+      target: 'dual',
       key: 'description',
       mapper: (node, value) => { node.description = value; }
     },
@@ -129,6 +129,11 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
       target: 'device',
       key: 'size',
       mapper: (node, value) => { node.size = getMacOSBytes(value); }
+    },
+    'Total Size': {
+      target: 'device',
+      key: 'size',
+      mapper: (node, value) => { node.size = node.size || getMacOSBytes(value); }
     },
     'Device Block Size': {
       target: 'device',
