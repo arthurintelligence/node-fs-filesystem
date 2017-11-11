@@ -141,8 +141,13 @@ describe('common core', function() {
 
     it('should exec child process and throw an error (sync = true)', function(done) {
       const cmd = os.platform() === 'win32'
-        ? `1>&2 echo 'Echoed Error'\nexit /b 1`
+        ? `error`
         : `>&2 echo 'Echoed Error'; exit 1`;
+      const error = os.platform() === 'win32'
+        ? `Command failed: error\n'error' is not recognized as an internal or ` +
+          `external command,\r\noperable program or batch file.\r\n`
+        : `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
+          `Echoed Error${os.EOL}`;
       const parserSpy1 = sinon.spy();
       const parserSpy2 = sinon.spy();
       const filter = () => {};
@@ -152,10 +157,7 @@ describe('common core', function() {
       };
 
       const exe = execute(cmd, parser);
-      expect(exe.bind(null, filter, null, true)).to.throw(
-        `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
-        `Echoed Error${os.EOL}`
-      );
+      expect(exe.bind(null, filter, null, true)).to.throw(error);
       done();
     });
 
@@ -184,8 +186,13 @@ describe('common core', function() {
 
     it('should exec child process and catch an error (sync = false)', function() {
       const cmd = os.platform() === 'win32'
-        ? `1>&2 echo 'Echoed Error'${os.EOL}exit /b 1`
+        ? `error`
         : `>&2 echo 'Echoed Error'; exit 1`;
+      const error = os.platform() === 'win32'
+        ? `Command failed: error\n'error' is not recognized as an internal or ` +
+          `external command,\r\noperable program or batch file.\r\n`
+        : `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
+          `Echoed Error${os.EOL}`;
       const parserSpy1 = sinon.spy();
       const parserSpy2 = sinon.spy();
       const filter = () => {};
@@ -199,10 +206,7 @@ describe('common core', function() {
         .then(() => {
           expect(callback.calledOnce).to.be.true;
           expect(callback.args[0][0]).to.be.instanceof(Error);
-          expect(callback.args[0][0].message).to.be.equal(
-            `Command failed: >&2 echo 'Echoed Error'; exit 1${os.EOL}` +
-            `Echoed Error${os.EOL}`
-          );
+          expect(callback.args[0][0].message).to.be.equal(error);
         });
     });
   });

@@ -258,10 +258,10 @@ export const parseMacOS = (getPropsTarget, addEmptyNode, parseNodeId, parseMacOS
         ),
         filter(identity),
         map((s) => s.trim()),
-        splitEOL
+        (s) => s.split('\n')
       )(entry),
       { devices: {} }
     ),
     filter((s) => s.trim()),
-    (s) => s.split(/\n\*{10}\n\n/) // Split per entry
+    (s) => s.split(/\*{10}/) // Split per entry
   )(output);

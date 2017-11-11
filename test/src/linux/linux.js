@@ -460,14 +460,14 @@ describe('linux unit tests', function(){
   describe('parseLinux', function(){
     it('should split the input in three part before passing it to the parselslk, ' +
       'parsefdiskl and parsedfT functions', function(done){
-      const dftinput = `df -T data${os.EOL}0${os.EOL}1${os.EOL}2${os.EOL}`;
-      const fdiskinput = `fdisk -l data${os.EOL}3${os.EOL}4${os.EOL}5${os.EOL}`;
-      const lsblkinput = `lsblk -o data${os.EOL}6${os.EOL}7${os.EOL}8${os.EOL}`;
+      const dftinput = `df -T data\n0\n1\n2\n`;
+      const fdiskinput = `fdisk -l data\n3\n4\n5\n`;
+      const lsblkinput = `lsblk -o data\n6\n7\n8\n`;
       const input =
         dftinput +
-        `${os.EOL}**********${os.EOL}${os.EOL}` +
+        `\n**********\n\n` +
         fdiskinput +
-        `${os.EOL}**********${os.EOL}${os.EOL}` +
+        `\n**********\n\n` +
         lsblkinput;
       const parsedfTSpy = sinon.spy();
       const parsedfT = (input) => (acc) => {
@@ -491,25 +491,22 @@ describe('linux unit tests', function(){
       parseLinux(mergeVolumesAndDevicesLinux, parselsblk, parsefdiskl, parsedfT)(userFilter)(input);
       expect(parsedfTSpy.callCount).to.be.equal(1);
       expect(parsedfTSpy.getCall(0).calledWith(dftinput)).to.be.true;
-      console.log(parsedfTSpy.args[0][0]);
       expect(parsefdisklSpy.callCount).to.be.equal(1);
       expect(parsefdisklSpy.getCall(0).calledWith(fdiskinput)).to.be.true;
-      console.log(parsefdisklSpy.args[0][0]);
       expect(parselsblkSpy.callCount).to.be.equal(1);
       expect(parselsblkSpy.getCall(0).calledWith(lsblkinput)).to.be.true;
-      console.log(parselsblkSpy.args[0][0]);
       done();
     });
 
     it('should call userFilter on all of the devices', function(done){
-      const dftinput = `df -T data${os.EOL}0${os.EOL}1${os.EOL}2${os.EOL}`;
-      const fdiskinput = `fdisk -l data${os.EOL}3${os.EOL}4${os.EOL}5${os.EOL}`;
-      const lsblkinput = `lsblk -o data${os.EOL}6${os.EOL}7${os.EOL}8${os.EOL}`;
+      const dftinput = `df -T data\n0\n1\n2\n`;
+      const fdiskinput = `fdisk -l data\n3\n4\n5\n`;
+      const lsblkinput = `lsblk -o data\n6\n7\n8\n`;
       const input =
         dftinput +
-        `${os.EOL}**********${os.EOL}${os.EOL}` +
+        `\n**********\n\n` +
         fdiskinput +
-        `${os.EOL}**********${os.EOL}${os.EOL}` +
+        `\n**********\n\n` +
         lsblkinput;
       const devices = {
         'sda': { id: 'sda' },

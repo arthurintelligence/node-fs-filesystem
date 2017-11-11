@@ -22,7 +22,6 @@ describe('macOS integration tests', function() {
         const input = child.execSync(macOS.COMMAND).toString();
         const userFilter = () => true;
         const acc = macOS.parser(userFilter)(input);
-        console.log(JSON.stringify(acc.devices));
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
@@ -60,7 +59,7 @@ describe('macOS integration tests', function() {
 
   describe('non-native tests', function(){
     it('should properly parse the provided static input', function(done){
-      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace('\n', os.EOL);
+      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace(/\r\n/g, '\n');
       const userFilter = () => true;
       const acc = macOS.parser(userFilter)(input);
       expect(acc.devices).to.be.an('object');

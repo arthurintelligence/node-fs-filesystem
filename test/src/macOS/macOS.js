@@ -248,7 +248,7 @@ describe('macOS unit tests', function(){
   });
 
   describe('parseMacOS', function(){
-    const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace('\n', os.EOL);
+    const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace(/\r\n/g, '\n');
 
     it('should split the input into the right number of nodes and differentiate ' +
        'devices from volumes', function(done){
