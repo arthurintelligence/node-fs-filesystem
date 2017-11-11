@@ -23,6 +23,8 @@ describe('macOS integration tests', function() {
         const userFilter = () => true;
         const acc = macOS.parser(userFilter)(input);
         expect(acc.devices).to.be.an('object');
+        console.log(input);
+        console.log(JSON.stringify(acc.devices));
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
           expect(acc.devices[k].id).to.be.a('string');
