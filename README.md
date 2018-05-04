@@ -40,12 +40,14 @@ like Arch and Alpine), so you should be fine :)
 ```js
 import filesystem from 'fs-filesystem';
 
-const devices = filesystem(filter, callback);
+filesystem(filter, (err, result) => {
+  console.log('devices', result);
+});
 ```
 
 #### filesystem( [ filter , ], callback )
 
-`// filesystem :: string|RegExp|function|undefined|null, function -> Object`
+`// filesystem :: string|RegExp|function|undefined|null, function -> void`
 
 * `filter` {string|RegExp|function|undefined|null}: A filter for which devices
 should be returned. If the filter is a string or RegExp, `fs-filesystem` will match
@@ -67,16 +69,17 @@ the `callback` function.
 ### Sync
 
 ```js
-import filesystem from 'fs-filesystem';
+import { filesystemSync } from 'fs-filesystem';
 
-const devices = filesystem.sync(filter);
+const result = filesystemSync(filter);
+console.log('devices', result);
 ```
 
-#### filesystem.sync( [ filter ] )
+#### filesystemSync( [ filter ] )
 
 *Remember, it's usually discouraged to use sync functions except when doing early setup!*
 
-`// filesystem :: string|RegExp|function|undefined|null -> Object`
+`// filesystemSync :: string|RegExp|function|undefined|null -> Object`
 
 * `filter` {string|RegExp|function|undefined|null}: A filter for which devices
 should be returned. If the filter is a string or RegExp, `fs-filesystem` will match
