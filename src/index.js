@@ -113,20 +113,20 @@ const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) =
   }
 )(platform);
 
-
-
-module.exports = filesystem(
-  execute(macOS.COMMAND, macOS.parser),
-  execute(linux.COMMAND, linux.parser),
-  execute(windows.COMMAND, windows.parser),
-  validate(validateDev, validateCallback),
-  os.platform()
-);
-
-filesystem.sync = filesystemSync(
+const sync = filesystemSync(
   execute(macOS.COMMAND, macOS.parser),
   execute(linux.COMMAND, linux.parser),
   execute(windows.COMMAND, windows.parser),
   validateDev,
+  os.platform()
+);
+
+export{ sync as filesystemSync };
+
+export default filesystem(
+  execute(macOS.COMMAND, macOS.parser),
+  execute(linux.COMMAND, linux.parser),
+  execute(windows.COMMAND, windows.parser),
+  validate(validateDev, validateCallback),
   os.platform()
 );
