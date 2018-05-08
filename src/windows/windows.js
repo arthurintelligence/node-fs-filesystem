@@ -1,6 +1,7 @@
 import F from '../functional';
 import { emptyDevice, emptyVolume, splitEOL } from '../utilities';
-const { compose, reduce, filter } = F.R;
+
+const { filter } = F;
 
 export const COMMAND = 'wmic logicaldisk get ' +
   'Caption,Description,DeviceID,FileSystem,FreeSpace,Name,Size,VolumeName';
@@ -32,15 +33,17 @@ export const parseWindowsProps =
   return acc;
 };
 
-export const parseWindows = (parseWindowsProps) => (userFilter) => compose(
-  ({ devices }) => ({
-    devices: filter(userFilter, devices)
-  }),
-  reduce(
+export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
+  const lines = splitEOL(data) // split by line
+    .filter((s) => s.trim()) // remove empty lines
+    .splice(1); // remove header
+
+  const { devices } = lines.reduce(
     (acc, v) => parseWindowsProps(acc, v.split(/\t|\s{2,}/)),
-    { devices: {} }
-  ),
-  (a) => a.splice(1),
-  filter((s) => s.trim()),
-  splitEOL
-);
+    { devices: {} },
+  );
+
+  return {
+    devices: filter(userFilter, devices), // apply user filter
+  };
+};
