@@ -22,7 +22,7 @@ const validateDev = (dev) => {
   }else if(dev instanceof RegExp) {
     return (v, k) => dev.test(k);
   }else if(typeof dev === 'undefined' || dev === null) {
-    return true;
+    return tautology;
   }
 
   thrower(
@@ -76,7 +76,7 @@ const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback
   default:
     thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
-      `${os} at the moment`
+      `${platform} at the moment`
     );
   }
 };
@@ -92,7 +92,7 @@ const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) =
   default:
     thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
-      `${os} at the moment`
+      `${platform} at the moment`
     );
   }
 };
