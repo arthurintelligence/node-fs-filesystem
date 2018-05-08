@@ -116,6 +116,6 @@ module.exports = {
     mapAccum,
     reduce,
     each,
-    filter
-  }
+    filter,
+  },
 };

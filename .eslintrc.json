@@ -12,6 +12,7 @@
     "ecmaVersion": 8
   },
   "rules": {
+    "comma-dangle": ["error", "always-multiline"],
     "indent": ["warn", 2],
     "keyword-spacing": ["error", {
       "before": false,
