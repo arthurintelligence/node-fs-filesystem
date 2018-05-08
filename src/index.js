@@ -6,7 +6,7 @@ import { hasSubstr, stringify } from './utilities';
 import linux from './linux';
 import macOS from './macOS';
 import windows from './windows';
-const { identity, ifElse, cond, eqeqeq, tautology, thrower } = F;
+const { tautology, thrower } = F;
 const { compose, composeP } = F.R;
 child.exec = Promise.promisify(child.exec, { context: child });
 
@@ -14,104 +14,88 @@ child.exec = Promise.promisify(child.exec, { context: child });
 // Common Core - Validation
 // --------------------------------------
 
-const validateDev = cond(
-  {
-    c: (dev) => typeof dev === 'function',
-    a: identity
-  },
-  {
-    c: (dev) => typeof dev === 'string',
-    a: (dev) => (v, k) => hasSubstr(k, dev)
-  },
-  {
-    c: (dev) => dev instanceof RegExp,
-    a: (dev) => (v, k) => dev.test(k)
-  },
-  {
-    c: (dev) => typeof dev === 'undefined' || dev === null,
-    a: (dev) => tautology
-  },
-  {
-    c: tautology,
-    a: (dev) => thrower(
-      `fs.filesystem expected first argument 'dev' to be a function, string, regex or undefined/null. ` +
-      `Found ${typeof dev === 'object' ? dev.constructor.name : typeof dev} instead.`,
-      TypeError
-    )
+const validateDev = (dev) => {
+  if(typeof dev === 'function') {
+    return dev;
+  }else if(typeof dev === 'string') {
+    return (v, k) => hasSubstr(k, dev);
+  }else if(dev instanceof RegExp) {
+    return (v, k) => dev.test(k);
+  }else if(typeof dev === 'undefined' || dev === null) {
+    return true;
   }
-);
 
-const validateCallback = ifElse(
-  (cb) => typeof cb === 'function',
-  (cb) => cb,
-  (cb) => thrower(
-    `fs.filesystem expected second argument 'callback' to be instanceof function. ` +
-    `Found ${typeof cb === 'object' ? cb.constructor.name : typeof cb} instead.`,
+  thrower(
+    `fs.filesystem expected first argument 'dev' to be a function, string, regex or undefined/null. ` +
+    `Found ${typeof dev === 'object' ? dev.constructor.name : typeof dev} instead.`,
     TypeError
-  )
-);
+  );
+};
+
+const validateCallback = (cb) => {
+  if(typeof cb !== 'function') {
+    thrower(
+      `fs.filesystem expected second argument 'callback' to be instanceof function. ` +
+      `Found ${typeof cb === 'object' ? cb.constructor.name : typeof cb} instead.`,
+      TypeError
+    );
+  }
+
+  return cb;
+};
 
 const validate = (validateDev, validateCallback) =>
-  (dev, callback) => ifElse(
-    () => typeof dev === 'function' && !callback,
-    () => { return [ tautology, dev ]; },
-    () => { return [ validateDev(dev), validateCallback(callback) ]; }
-  )();
+  (dev, callback) => {
+    if(typeof dev === 'function' && !callback) {
+      return [ tautology, dev ];
+    }
+
+    return [ validateDev(dev), validateCallback(callback) ];
+  };
 
 // --------------------------------------
 // Common Core - Main & Export Functions
 // --------------------------------------
 
-const execute = (cmd, parser) => (filter, cb, sync = false) => ifElse(
-  () => sync,
-  (cmd) => compose(parser(filter), stringify, child.execSync)(cmd),
-  (cmd) => composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd)
-    .catch(cb)
-)(cmd);
+const execute = (cmd, parser) => (filter, cb, sync = false) => {
+  if(sync) {
+    return compose(parser(filter), stringify, child.execSync)(cmd);
+  }
 
-const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => cond(
-  {
-    c: eqeqeq('darwin'),
-    a: () => macOS(...validate(dev, callback)).devices
-  },
-  {
-    c: eqeqeq('linux'),
-    a: () => linux(...validate(dev, callback)).devices
-  },
-  {
-    c: eqeqeq('win32'),
-    a: () => windows(...validate(dev, callback)).devices
-  },
-  {
-    c: tautology,
-    a: (os) => thrower(
+  return composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd).catch(cb);
+};
+
+const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => {
+  switch(platform) {
+  case 'darwin':
+    return macOS(...validate(dev, callback)).devices;
+  case 'linux':
+    return linux(...validate(dev, callback)).devices;
+  case 'win32':
+    return windows(...validate(dev, callback)).devices;
+  default:
+    thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
       `${os} at the moment`
-    )
+    );
   }
-)(platform);
+};
 
-const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) => cond(
-  {
-    c: eqeqeq('darwin'),
-    a: () => macOS(validateDev(dev), null, true).devices
-  },
-  {
-    c: eqeqeq('linux'),
-    a: () => linux(validateDev(dev), null, true).devices
-  },
-  {
-    c: eqeqeq('win32'),
-    a: () => windows(validateDev(dev), null, true).devices
-  },
-  {
-    c: tautology,
-    a: (os) => thrower(
+const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) => {
+  switch(platform){
+  case 'darwin':
+    return macOS(validateDev(dev), null, true).devices;
+  case 'linux':
+    return linux(validateDev(dev), null, true).devices;
+  case 'win32':
+    return windows(validateDev(dev), null, true).devices;
+  default:
+    thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
       `${os} at the moment`
-    )
+    );
   }
-)(platform);
+};
 
 const sync = filesystemSync(
   execute(macOS.COMMAND, macOS.parser),
