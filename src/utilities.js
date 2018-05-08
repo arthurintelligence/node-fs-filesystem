@@ -28,7 +28,7 @@ export const emptyDevice = () => {
     protocol: null,
     blockSize: null,
     readOnly: null,
-    removable: null
+    removable: null,
   };
 };
 
@@ -47,6 +47,6 @@ export const emptyVolume = () => {
     mountPoint: null,
     partitionType: null,
     fs: null,
-    space: { total: null, available: null, used: null }
+    space: { total: null, available: null, used: null },
   };
 };
