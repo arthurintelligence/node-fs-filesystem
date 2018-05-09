@@ -80,12 +80,12 @@ describe('macOS unit tests', function(){
       }
     };
     it('should return the device if no volume id is specified', function(done){
-      expect(getPropsTarget(acc)(['a', void 0])).to.be.equal(acc.devices.a);
+      expect(getPropsTarget(acc, ['a', undefined])).to.be.equal(acc.devices.a);
       done();
     });
 
     it('should return the volume if volume id is specified', function(done){
-      expect(getPropsTarget(acc)(['a', 'aa'])).to.be.equal(acc.devices.a.volumes.aa);
+      expect(getPropsTarget(acc, ['a', 'aa'])).to.be.equal(acc.devices.a.volumes.aa);
       done();
     });
   });
@@ -132,7 +132,7 @@ describe('macOS unit tests', function(){
       const addEmptyDevice = () => addEmptyDeviceSpy;
       const addEmptyVolumeToDeviceSpy = sinon.spy();
       const addEmptyVolumeToDevice = () => addEmptyVolumeToDeviceSpy;
-      addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice)({})(['a', undefined]);
+      addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice)({}, ['a', undefined]);
       expect(addEmptyDeviceSpy.calledOnce).to.be.true;
       expect(addEmptyVolumeToDeviceSpy.notCalled).to.be.true;
       done();
@@ -159,7 +159,7 @@ describe('macOS unit tests', function(){
       const acc = {
         devices: {}
       };
-      const [devid, id] = parseNodeId(acc)(lines);
+      const [devid, id] = parseNodeId(acc, lines);
       expect(devid).to.be.equal('disk0');
       expect(id).to.be.undefined;
       done();
@@ -172,7 +172,7 @@ describe('macOS unit tests', function(){
           disk0: {}
         }
       };
-      const [devid, id] = parseNodeId(acc)(lines);
+      const [devid, id] = parseNodeId(acc, lines);
       expect(devid).to.be.equal('disk0');
       expect(id).to.be.equal('disk0s1');
       done();
