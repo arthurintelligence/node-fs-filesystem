@@ -59,7 +59,7 @@ describe('windows unit tests', function(){
   describe('parseWindowsProps', function(){
     it('should return a properly formatted object listing devices', function(done) {
       const acc = { devices: {} };
-      const input = ['D:', 'CD-ROM Disc', 'D:', 'CDFS', '0', 'D:', '59494400', 'VBOXADDITIONS_5.'];
+      const input = ['D:', 'CD-ROM Disc', 'D:', '3', 'CDFS', '0', 'D:', '59494400', 'VBOXADDITIONS_5.'];
       parseWindowsProps(acc, input);
       expect(acc).to.be.an('object').that.has.keys('devices');
       expect(acc.devices).to.be.an('object');
@@ -86,7 +86,7 @@ describe('windows unit tests', function(){
 
     it('should return a properly formatted object listing devices (duplicate device)', function(done) {
       const acc = { devices: { 'D:': {} } };
-      const input = ['D:', 'CD-ROM Disc', 'D:', 'CDFS', '0', 'D:', '59494400', 'VBOXADDITIONS_5.'];
+      const input = ['D:', 'CD-ROM Disc', 'D:', '3', 'CDFS', '0', 'D:', '59494400', 'VBOXADDITIONS_5.'];
       parseWindowsProps(acc, input);
       expect(acc).to.be.an('object').that.has.keys('devices');
       expect(acc.devices).to.be.an('object');

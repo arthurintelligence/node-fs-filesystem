@@ -3,10 +3,10 @@ import { emptyDevice, emptyVolume, splitEOL } from '../utilities';
 const { compose, reduce, filter } = F.R;
 
 export const COMMAND = 'wmic logicaldisk get ' +
-  'Caption,Description,DeviceID,FileSystem,FreeSpace,Name,Size,VolumeName,DriveType';
+  'Caption,Description,DeviceID,DriveType,FileSystem,FreeSpace,Name,Size,VolumeName';
 
 export const parseWindowsProps =
-(acc, [ caption, desc, id, filesystem, space, name, size, volumename, drivetype ]) => {
+(acc, [ caption, desc, id, drivetype, filesystem, space, name, size, volumename ]) => {
   acc.devices[name] = acc.devices[name] ? acc.devices[name] : emptyDevice();
   acc.devices[name].id = id;
   acc.devices[name].whole = true;

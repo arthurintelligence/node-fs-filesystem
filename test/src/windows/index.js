@@ -58,7 +58,7 @@ describe('windows integration tests', function(){
       const acc = windows.parser(userFilter)(input);
       expect(acc).to.be.an('object').that.has.keys('devices');
       expect(acc.devices).to.be.an('object');
-      expect(Object.keys(acc.devices).length).to.be.equal(4);
+      expect(Object.keys(acc.devices).length).to.be.equal(5);
       for(let k in acc.devices){
         expect(acc.devices[k].id).to.be.a('string');
         expect(acc.devices[k].node).to.be.a('string');
