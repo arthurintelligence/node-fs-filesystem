@@ -146,7 +146,7 @@ describe('macOS unit tests', function(){
       const addEmptyDevice = () => addEmptyDeviceSpy;
       const addEmptyVolumeToDeviceSpy = sinon.spy();
       const addEmptyVolumeToDevice = () => addEmptyVolumeToDeviceSpy;
-      addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice)(acc)(['a', 'aa']);
+      addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice)(acc, ['a', 'aa']);
       expect(addEmptyVolumeToDeviceSpy.calledOnce).to.be.true;
       expect(addEmptyDeviceSpy.notCalled).to.be.true;
       done();
