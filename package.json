@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "csv": "^3.0.2",
     "ramda": "^0.25.0"
   },
   "devDependencies": {

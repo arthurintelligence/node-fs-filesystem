@@ -1,6 +1,6 @@
 import F from '../functional';
+import os from 'os';
 import { emptyDevice, emptyVolume } from '../utilities';
-import csvSync from 'csv-parse/lib/sync';
 const { compose, reduce, filter } = F.R;
 
 export const COMMAND =
@@ -8,20 +8,7 @@ export const COMMAND =
   'Caption,Description,DeviceID,DriveType,FileSystem,FreeSpace,Name,Size,VolumeName ' +
   '/format:csv';
 
-export const parseWindowsProps = (
-  acc,
-  {
-    Caption,
-    Description,
-    DeviceID,
-    DriveType,
-    FileSystem,
-    FreeSpace,
-    Name,
-    Size,
-    VolumeName
-  }
-) => {
+export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveType, FileSystem, FreeSpace, Name, Size, VolumeName }) => {
   acc.devices[Name] = acc.devices[Name] ? acc.devices[Name] : emptyDevice();
   acc.devices[Name].id = DeviceID;
   acc.devices[Name].whole = true;
@@ -56,5 +43,20 @@ export const parseWindows = parseWindowsProps => userFilter =>
     reduce((acc, propsObj) => parseWindowsProps(acc, propsObj), {
       devices: {}
     }),
-    csv => csvSync(csv, { columns: true })
+    csv => {
+      var lines = csv.split(os.EOL);
+      var columns = lines[0].split(',');
+      var result = [];
+      for(var i = 1; i < lines.length; i++) {
+        if(lines[i].length > 0) {
+          var values = lines[i].split(',');
+          var obj = {};
+          values.map((val, j) => {
+            obj[columns[j]] = val;
+          });
+          result.push(obj);
+        }
+      }
+      return result;
+    }
   );
