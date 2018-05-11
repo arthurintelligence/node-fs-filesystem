@@ -1,6 +1,5 @@
 import F from '../functional';
 import { lasti as lastIndex, hasSubstr, splitEOL } from '../utilities';
-const { each } = F;
 const { compose, map, reduce, filter } = F.R;
 
 export const COMMAND = 'df -T && ' +

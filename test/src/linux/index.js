@@ -4,6 +4,7 @@ import path from 'path';
 import { expect } from 'chai';
 import child from 'child_process';
 import linux from '../../../src/linux';
+import { ENVIRONMENT } from '../../../src';
 
 // eqeqeq :: * -> * -> Bool
 const eqeqeq = (x) => (y) => x === y;
@@ -19,7 +20,7 @@ describe('linux integration tests', function() {
     () => function(){
       it('should properly parse the output of the filesystem command', function(done){
         this.timeout(5000);
-        const input = child.execSync(linux.COMMAND).toString();
+        const input = child.execSync(linux.COMMAND, ENVIRONMENT).toString();
         const userFilter = () => true;
         const acc = linux.parser(userFilter)(input);
         expect(acc.devices).to.be.an('object');
@@ -102,6 +103,13 @@ describe('linux integration tests', function() {
           ).to.be.true;
         });
       }
+      done();
+    });
+
+    it('should properly parse the provided static input (2)', function(done){
+      const input = fs.readFileSync(path.resolve(__dirname, 'input2.txt')).toString().replace(/\r\n/g, '\n');
+      const userFilter = () => true;
+      expect(linux.parser(userFilter)(input)).to.not.throw();
       done();
     });
   });

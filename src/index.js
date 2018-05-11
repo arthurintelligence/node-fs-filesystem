@@ -58,12 +58,18 @@ const validate = (validateDev, validateCallback) =>
 // Common Core - Main & Export Functions
 // --------------------------------------
 
+const ENVIRONMENT = {
+  env: {
+    LANG: 'en_US.UTF-8',
+    PATH: process.env.PATH,
+  },
+};
+
 const execute = (cmd, parser) => (filter, cb, sync = false) => {
   if(sync) {
-    return compose(parser(filter), stringify, child.execSync)(cmd);
+    return compose(parser(filter), stringify, child.execSync)(cmd, ENVIRONMENT);
   }
-
-  return composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd).catch(cb);
+  return composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd, ENVIRONMENT).catch(cb);
 };
 
 const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => {
@@ -106,7 +112,7 @@ const sync = filesystemSync(
   os.platform()
 );
 
-export{ sync as filesystemSync };
+export{ sync as filesystemSync, ENVIRONMENT };
 
 export default filesystem(
   execute(macOS.COMMAND, macOS.parser),
