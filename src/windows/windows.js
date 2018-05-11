@@ -1,7 +1,7 @@
 import F from '../functional';
 import os from 'os';
 import { emptyDevice, emptyVolume } from '../utilities';
-const { compose, reduce, filter } = F.R;
+const { filter } = F;
 
 export const COMMAND =
   'wmic logicaldisk get ' +
@@ -35,28 +35,27 @@ export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveTy
   return acc;
 };
 
-export const parseWindows = parseWindowsProps => userFilter =>
-  compose(
-    ({ devices }) => ({
-      devices: filter(userFilter, devices)
-    }),
-    reduce((acc, propsObj) => parseWindowsProps(acc, propsObj), {
-      devices: {}
-    }),
-    csv => {
-      var lines = csv.split(os.EOL);
-      var columns = lines[0].split(',');
-      var result = [];
-      for(var i = 1; i < lines.length; i++) {
-        if(lines[i].length > 0) {
-          var values = lines[i].split(',');
-          var obj = {};
-          values.map((val, j) => {
-            obj[columns[j]] = val;
-          });
-          result.push(obj);
-        }
-      }
-      return result;
+export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
+  var lines = data.split(os.EOL);
+  var columns = lines[0].split(',');
+  var result = [];
+  for(var i = 1; i < lines.length; i++) {
+    if(lines[i].length > 0) {
+      var values = lines[i].split(',');
+      var obj = {};
+      values.map((val, j) => {
+        obj[columns[j]] = val;
+      });
+      result.push(obj);
     }
+  }
+
+  const { devices } = result.reduce(
+    (acc, v) => parseWindowsProps(acc, v),
+    { devices: {} },
   );
+
+  return {
+    devices: filter(userFilter, devices), // apply user filter
+  };
+};

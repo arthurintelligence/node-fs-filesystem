@@ -1,7 +1,7 @@
 import F from '../functional';
 import { hasSubstr, getYesNo, emptyDevice, emptyVolume } from '../utilities';
-const { identity, cond, each, tap, tautology } = F;
-const { compose, map, reduce, filter } = F.R;
+const { each } = F;
+const { filter } = F.R;
 
 export const COMMAND = 'diskutil info -all';
 
@@ -41,7 +41,7 @@ export const macOSFS = (fs) => {
 export const nodeType = (node) => node.space ? 'volume' : 'device';
 
 // Gets target device / volume for parseMacOSToProps
-export const getPropsTarget = (acc) => ([devid, id]) => id ? acc.devices[devid].volumes[id] : acc.devices[devid];
+export const getPropsTarget = (acc, [devid, id]) => id ? acc.devices[devid].volumes[id] : acc.devices[devid];
 
 // Adds an empty device to accumulator
 export const addEmptyDevice = (acc) => (id) => { acc.devices[id] = emptyDevice(); };
@@ -55,17 +55,16 @@ export const addEmptyVolumeToDevice = (device) => (id) => {
 };
 
 // Adds an empty device / volume based off wether a volume id is provided
-export const addEmptyNode = (addEmptyDevice, addEmptyVolumeToDevice) => (acc) =>
-  ([devid, id]) => id ? addEmptyVolumeToDevice(acc.devices[devid])(id) : addEmptyDevice(acc)(devid);
+export const addEmptyNode = (addEmptyDevice, addEmptyVolumeToDevice) =>
+  (acc, [devid, id]) => id ? addEmptyVolumeToDevice(acc.devices[devid])(id) : addEmptyDevice(acc)(devid);
 
 // Finds the device id as well as the volume id (where applicable) from the provided input lines
-export const parseNodeId = (acc) => (lines) => compose(
-  (id) => {
-    const devid = Object.keys(acc.devices).find((dev) => id.match(`^${dev}`));
-    return devid ? [ devid, id ] : [ id, void 0 ];
-  },
-  (lines) => lines.find((l) => l.match('Device Identifier')).match(/:\s+(.*)/)[1]
-)(lines);
+export const parseNodeId = (acc, lines) => {
+  const id = lines.find((l) => l.match('Device Identifier')).match(/:\s+(.*)/)[1];
+  const devid = Object.keys(acc.devices).find((dev) => id.match(`^${dev}`));
+
+  return devid ? [ devid, id ] : [ id, undefined ];
+};
 
 // Maps received line to a property on the node
 export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
@@ -73,82 +72,82 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
     'Device Identifier': {
       target: 'dual',
       key: 'id',
-      mapper: (node, value) => { node.id = value; }
+      mapper: (node, value) => { node.id = value; },
     },
     'Device Node': {
       target: 'dual',
       key: 'node',
-      mapper: (node, value) => { node.node = value; }
+      mapper: (node, value) => { node.node = value; },
     },
     'Whole': {
       target: 'dual',
       key: 'whole',
-      mapper: (node, value) => { node.whole = getYesNo(value); }
+      mapper: (node, value) => { node.whole = getYesNo(value); },
     },
     'Part of Whole': {
       target: 'dual',
       key: 'parent',
-      mapper: (node, value) => { node.parent = value; }
+      mapper: (node, value) => { node.parent = value; },
     },
     'Device / Media Name': {
       target: 'dual',
       key: 'description',
-      mapper: (node, value) => { node.description = value; }
+      mapper: (node, value) => { node.description = value; },
     },
     'Volume Name': {
       target: 'dual',
       key: 'name',
-      mapper: (node, value) => { node.name = hasSubstr(value, 'Not applicable') ? null : value; }
+      mapper: (node, value) => { node.name = hasSubstr(value, 'Not applicable') ? null : value; },
     },
     'Mounted': {
       target: 'dual',
       key: 'mounted',
-      mapper: (node, value) => { node.mounted = !hasSubstr(value, 'Not applicable'); }
+      mapper: (node, value) => { node.mounted = !hasSubstr(value, 'Not applicable'); },
     },
     'Mount Point': {
       target: 'dual',
       key: 'mountPoint',
-      mapper: (node, value) => { node.mountPoint = hasSubstr(value, 'Not applicable') ? null : value; }
+      mapper: (node, value) => { node.mountPoint = hasSubstr(value, 'Not applicable') ? null : value; },
     },
     'File System Personality': {
       target: 'volume',
       key: 'fs',
-      mapper: (node, value) => { node.fs = macOSFS(value); }
+      mapper: (node, value) => { node.fs = macOSFS(value); },
     },
     'Partition Type': {
       target: 'volume',
       key: 'partitionType',
-      mapper: (node, value) => { node.partitionType = value; }
+      mapper: (node, value) => { node.partitionType = value; },
     },
     'Protocol': {
       target: 'device',
       key: 'protocol',
-      mapper: (node, value) => { node.protocol = value; }
+      mapper: (node, value) => { node.protocol = value; },
     },
     'Disk Size': {
       target: 'device',
       key: 'size',
-      mapper: (node, value) => { node.size = getMacOSBytes(value); }
+      mapper: (node, value) => { node.size = getMacOSBytes(value); },
     },
     'Total Size': {
       target: 'device',
       key: 'size',
-      mapper: (node, value) => { node.size = node.size || getMacOSBytes(value); }
+      mapper: (node, value) => { node.size = node.size || getMacOSBytes(value); },
     },
     'Device Block Size': {
       target: 'device',
       key: 'blockSize',
-      mapper: (node, value) => { node.blockSize = parseInt(value.match(/\d+/)[0]); }
+      mapper: (node, value) => { node.blockSize = parseInt(value.match(/\d+/)[0]); },
     },
     'Volume Total Space': {
       target: 'volume',
       key: 'space.total',
-      mapper: (node, value) => { node.space.total = getMacOSBytes(value); }
+      mapper: (node, value) => { node.space.total = getMacOSBytes(value); },
     },
     'Volume Used Space': {
       target: 'volume',
       key: 'space.used',
-      mapper: (node, value) => { node.space.used = getMacOSBytes(value); }
+      mapper: (node, value) => { node.space.used = getMacOSBytes(value); },
     },
     'Volume Available Space': {
       target: 'volume',
@@ -160,113 +159,121 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
         }
       }
     },
+    'Volume Free Space': {
+      target: 'volume',
+      key: 'space.available',
+      mapper: (node, value) => {
+        node.space.available = getMacOSBytes(value);
+        if(node.space.total !== null && node.space.used === null){
+          node.space.used = node.space.total - node.space.available;
+        }
+      },
+    },
     'Allocation Block Size': {
       target: 'volume',
       key: 'blockSize',
-      mapper: (node, value) => { node.blockSize = parseInt(value.match(/\d+/)[0]); }
+      mapper: (node, value) => { node.blockSize = parseInt(value.match(/\d+/)[0]); },
     },
     'Read-Only Media': {
       target: 'device',
       key: 'readOnly',
-      mapper: (node, value) => { node.readOnly = getYesNo(value); }
+      mapper: (node, value) => { node.readOnly = getYesNo(value); },
     },
     'Read-Only Volume': {
       target: 'dual',
       key: 'readOnly',
-      mapper: (node, value) => { node.readOnly = hasSubstr(value, 'Not applicable (not mounted)') ? null : getYesNo(value); }
+      mapper: (node, value) => { node.readOnly = hasSubstr(value, 'Not applicable (not mounted)') ? null : getYesNo(value); },
     },
     'Removable Media': {
       target: 'device',
       key: 'removable',
-      mapper: (node, value) => { node.removable = value === 'Fixed'; }
-    }
+      mapper: (node, value) => { node.removable = value === 'Fixed'; },
+    },
   };
 
-  return (node, key, value) => cond(
-    {
-      // Property ought to be mapped on current node
-      c: ({ node, key }) =>
-        PROPERTY_MAP[key] && PROPERTY_MAP[key].target === nodeType(node),
-      a: ({ node, key, value }) => {
-        if(PROPERTY_MAP[key]) PROPERTY_MAP[key].mapper(node, value);
-        return node;
+  return (node, key, value) => {
+    // Property ought to be mapped on current node
+    if(PROPERTY_MAP[key] && PROPERTY_MAP[key].target === nodeType(node)){
+      if(PROPERTY_MAP[key]) {
+        PROPERTY_MAP[key].mapper(node, value);
       }
-    },
-    {
-      // Property ought to be mapped on both device and volume
-      c: ({ node, key }) =>
-        PROPERTY_MAP[key] && PROPERTY_MAP[key].target === 'dual',
-      a: ({ node, key, value }) => {
-        if(PROPERTY_MAP[key]){
-          PROPERTY_MAP[key].mapper(node, value);
-          if(node.volumes && node.volumes[node.id]){
-            PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
-          }
-        }
-        return node;
-      }
-    },
-    {
-      // Property ought to be mapped on volume but current node is a device => dual
-      c: ({ node, key }) =>
-        PROPERTY_MAP[key] && PROPERTY_MAP[key].target === 'volume' && nodeType(node) === 'device',
-      a: ({ node, key, value }) => {
-        if(!(node.volumes && node.volumes[node.id])){
-          addEmptyVolumeToDevice(node)(node.id);
-          each(
-            ({ target, key }) => { if(target === 'dual') node.volumes[node.id][key] = node[key]; },
-            PROPERTY_MAP
-          );
-        }
-        PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
-        return node;
-      }
-    },
-    {
-      // Property ought to be mapped on device but current node is a volume
-      // or property is not in PROPERTY_MAP
-      c: tautology,
-      a: ({ node, key, value }) => node
+      return node;
     }
-  )({ node, key, value });
+
+    // Property ought to be mapped on both device and volume
+    if(PROPERTY_MAP[key] && PROPERTY_MAP[key].target === 'dual'){
+      if(PROPERTY_MAP[key]){
+        PROPERTY_MAP[key].mapper(node, value);
+        if(node.volumes && node.volumes[node.id]){
+          PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
+        }
+      }
+      return node;
+    }
+
+    // Property ought to be mapped on volume but current node is a device => dual
+    if(PROPERTY_MAP[key] && PROPERTY_MAP[key].target === 'volume' && nodeType(node) === 'device'){
+      if(!(node.volumes && node.volumes[node.id])){
+        addEmptyVolumeToDevice(node)(node.id);
+        each(
+          ({ target, key }) => { if(target === 'dual') node.volumes[node.id][key] = node[key]; },
+          PROPERTY_MAP
+        );
+      }
+      PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
+      return node;
+    }
+
+    // Property ought to be mapped on device but current node is a volume
+    // or property is not in PROPERTY_MAP
+    return node;
+  };
 };
-
-
 
 
 // Parses output of COMMAND to an object
 export const parseMacOS = (getPropsTarget, addEmptyNode, parseNodeId, parseMacOSToProps) =>
-  (userFilter) => (output) => compose(
-    // Filter devices according to userFilter
-    ({ devices }) => ({
-      devices: filter(userFilter, devices)
-    }),
-    // Map devices[devid].volumes object to an array of volumes (to standardize with other OSes)
-    (acc) => {
-      acc.devices = each(
-        (dev, k) => {
-          dev.volumes = dev.volumes
-            ? Object.keys(dev.volumes).map((k) => dev.volumes[k])
-            : [];
-        },
-        acc.devices
-      );
-      return acc;
-    },
+  (userFilter) => (output) => {
+    const entries = output
+      .split(/\*{10}/) // Split per entry
+      .filter((s) => s.trim()); // Remove empty blocks
+
     // reduce input entries to device / volume objects and return accumulator
-    reduce(
-      (acc, entry) => compose(
-        F.K(acc),
-        F.S(
-          F.C(reduce((target, line) => parseMacOSToProps(target, ...line.split(/:\s+/)))),
-          compose(getPropsTarget(acc), tap(addEmptyNode(acc)), parseNodeId(acc))
-        ),
-        filter(identity),
-        map((s) => s.trim()),
-        (s) => s.split('\n')
-      )(entry),
+    const accumulator = entries.reduce(
+      (acc, entry) => {
+        const lines = entry
+          .split('\n') // Split by line
+          .map((s) => s.trim()) // Trim whitespace
+          .filter((s) => s); // Remove empty lines
+
+        const identifiers = parseNodeId(acc, lines);
+        addEmptyNode(acc, identifiers);
+
+        lines.reduce(
+          (target, line) => parseMacOSToProps(target, ...line.split(/:\s+/)),
+          getPropsTarget(acc, identifiers)
+        );
+
+        return acc;
+      },
       { devices: {} }
-    ),
-    filter((s) => s.trim()),
-    (s) => s.split(/\*{10}/) // Split per entry
-  )(output);
+    );
+
+    accumulator.devices =
+      Object.entries(accumulator.devices)
+        .map(([k, dev]) => [k, {
+          ...dev,
+          volumes: dev.volumes
+            ? Object.keys(dev.volumes).map((k) => dev.volumes[k])
+            : [],
+        }])
+        .reduce((acc, [k, dev]) => {
+          acc[k] = dev;
+          return acc;
+        }, {});
+
+    // Filter devices according to userFilter
+    return ({
+      devices: filter(userFilter, accumulator.devices),
+    });
+  };
