@@ -12,7 +12,7 @@ import {
   parsefdiskl,
   splitdfTLine,
   parsedfT,
-  parseLinux
+  parseLinux,
 } from './linux';
 import { emptyDevice, emptyVolume } from '../utilities';
 
@@ -32,5 +32,5 @@ export default {
       parsefdisklVolumeData(getNodeId, createNewVolume)
     ),
     parsedfT(getNodeId, createNewVolume, splitdfTLine)
-  )
+  ),
 };
