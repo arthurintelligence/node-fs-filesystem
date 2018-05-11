@@ -160,6 +160,16 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
         }
       }
     },
+    'Volume Free Space': {
+      target: 'volume',
+      key: 'space.available',
+      mapper: (node, value) => {
+        node.space.available = getMacOSBytes(value);
+        if(node.space.total !== null && node.space.used === null){
+          node.space.used = node.space.total - node.space.available;
+        }
+      }
+    },
     'Allocation Block Size': {
       target: 'volume',
       key: 'blockSize',

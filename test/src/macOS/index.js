@@ -45,7 +45,7 @@ describe('macOS integration tests', function() {
                 typeof v.space.total === 'number' && v.space.total >= 0 &&
                 typeof v.space.available === 'number' && v.space.available >= 0 &&
                 typeof v.space.used === 'number' && v.space.used >= 0
-              )
+              ), JSON.stringify(v.space)
             ).to.be.true;
           });
         }
