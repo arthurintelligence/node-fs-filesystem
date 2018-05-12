@@ -36,7 +36,12 @@ export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveTy
 };
 
 export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
-  var lines = data.split(os.EOL);
+  // fix double \r\r coming from wmic
+  data = data.replace(/\r\r/gi, '\r');
+  var lines = 
+    data.split(os.EOL)
+    .filter((s) => s.trim());
+
   var columns = lines[0].split(',');
   var result = [];
   for(var i = 1; i < lines.length; i++) {
