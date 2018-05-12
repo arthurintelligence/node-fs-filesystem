@@ -72,16 +72,16 @@ const execute = (cmd, parser) => (filter, cb, sync = false) => {
   return composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd, ENVIRONMENT).catch(cb);
 };
 
-const inferDevSize = (devices) => {
-  for(const k in devices){
-    if(devices[k].size === null) {
-      var sizeSum = devices[k].volumes.reduce((size, vol) => {
+const inferDevSize = (result) => {
+  for(const k in result.devices){
+    if(result.devices[k].size === null) {
+      var sizeSum = result.devices[k].volumes.reduce((size, vol) => {
         return size + vol.space.total;
       }, 0);
-      devices[k].size = sizeSum;
+      result.devices[k].size = sizeSum;
     }
   }
-  return devices;
+  return result;
 };
 
 const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => {
@@ -134,7 +134,7 @@ const sync = filesystemSync(
   os.platform()
 );
 
-export{ sync as filesystemSync, ENVIRONMENT };
+export{ sync as filesystemSync, inferDevSize, ENVIRONMENT };
 
 export default filesystem(
   execute(macOS.COMMAND, macOS.parser),

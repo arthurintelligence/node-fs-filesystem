@@ -4,7 +4,7 @@ import path from 'path';
 import { expect } from 'chai';
 import child from 'child_process';
 import linux from '../../../src/linux';
-import { ENVIRONMENT } from '../../../src';
+import { ENVIRONMENT, inferDevSize } from '../../../src';
 
 // eqeqeq :: * -> * -> Bool
 const eqeqeq = (x) => (y) => x === y;
@@ -117,9 +117,8 @@ describe('linux integration tests', function() {
     it('should properly parse the provided static input3, and infer disk size', function(done){
       const input = fs.readFileSync(path.resolve(__dirname, 'input3.txt')).toString().replace(/\r\n/g, '\n');
       const userFilter = () => true;
-      const parseit = () => linux.parser(userFilter)(input);
-      expect(parseit).to.not.throw();
-      const acc = parseit();
+      const firstParse = linux.parser(userFilter)(input);
+      const acc = inferDevSize(firstParse);
       expect(acc.devices).to.be.an('object');
       expect(Object.keys(acc.devices).length).to.be.at.least(1);
       for(const k in acc.devices){
