@@ -157,7 +157,7 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
         if(node.space.total !== null && node.space.used === null){
           node.space.used = node.space.total - node.space.available;
         }
-      }
+      },
     },
     'Volume Free Space': {
       target: 'volume',

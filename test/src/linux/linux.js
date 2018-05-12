@@ -15,7 +15,7 @@ import {
   parsefdiskl,
   splitdfTLine,
   parsedfT,
-  parseLinux
+  parseLinux,
 } from '../../../src/linux/linux';
 
 // tap :: Function -> a -> a
@@ -142,7 +142,7 @@ describe('linux unit tests', function(){
         'Sector size (logical/physical): 512 bytes / 512 bytes',
         'I/O size (minimum/optimal): 512 bytes / 512 bytes',
         'Disklabel type: gpt',
-        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931'
+        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931',
       ];
       const getNodeId = () => 'sda';
       const createNewDevice = () => { return {}; };
@@ -167,7 +167,7 @@ describe('linux unit tests', function(){
         'Sector size (logical/physical): 512 bytes / 512 bytes',
         'I/O size (minimum/optimal): 512 bytes / 512 bytes',
         'Disklabel type: gpt',
-        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931'
+        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931',
       ];
       const sda = emptyDevice();
       sda.node = '/dev/sdz';
@@ -411,13 +411,13 @@ describe('linux unit tests', function(){
         devices: {
           'sda': {},
           'sdb': {},
-          'sdc': {}
+          'sdc': {},
         },
         volumes: {
           'sda1': { id: 'sda1' },
           'sda2': { id: 'sda2' },
-          'sdb1': { id: 'sdb1' }
-        }
+          'sdb1': { id: 'sdb1' },
+        },
       };
       const merged = mergeVolumesAndDevicesLinux(emptyDevice)(acc);
       const expectedKeys = Object.keys(emptyDevice());
@@ -439,11 +439,11 @@ describe('linux unit tests', function(){
       'property of its volumes', function(done){
       const acc = {
         devices: {
-          'sda': { volumeBlockSize: 512 }
+          'sda': { volumeBlockSize: 512 },
         },
         volumes: {
-          'sda1': { id: 'sda1' }
-        }
+          'sda1': { id: 'sda1' },
+        },
       };
       const merged = mergeVolumesAndDevicesLinux(emptyDevice)(acc);
       const expectedKeys = Object.keys(emptyDevice());
@@ -510,7 +510,7 @@ describe('linux unit tests', function(){
       const devices = {
         'sda': { id: 'sda' },
         'sdb': { id: 'sdb' },
-        'sdc': { id: 'sdc' }
+        'sdc': { id: 'sdc' },
       };
       const parsedfT = () => tap;
       const parsefdiskl = () => (acc) => acc;

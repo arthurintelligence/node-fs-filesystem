@@ -1,45 +1,60 @@
 import F from '../functional';
-import { emptyDevice, emptyVolume, splitEOL } from '../utilities';
-
+import os from 'os';
+import { emptyDevice, emptyVolume } from '../utilities';
 const { filter } = F;
 
-export const COMMAND = 'wmic logicaldisk get ' +
-  'Caption,Description,DeviceID,FileSystem,FreeSpace,Name,Size,VolumeName';
+export const COMMAND =
+  'wmic logicaldisk get ' +
+  'Caption,Description,DeviceID,DriveType,FileSystem,FreeSpace,Name,Size,VolumeName ' +
+  '/format:csv';
 
-export const parseWindowsProps =
-(acc, [ caption, desc, id, filesystem, space, name, size, volumename ]) => {
-  acc.devices[name] = acc.devices[name] ? acc.devices[name] : emptyDevice();
-  acc.devices[name].id = id;
-  acc.devices[name].whole = true;
-  acc.devices[name].parent = id;
-  acc.devices[name].node = caption;
-  acc.devices[name].name = name;
-  acc.devices[name].size = parseInt(size);
-  acc.devices[name].description = desc;
+export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveType, FileSystem, FreeSpace, Name, Size, VolumeName }) => {
+  acc.devices[Name] = acc.devices[Name] ? acc.devices[Name] : emptyDevice();
+  acc.devices[Name].id = DeviceID;
+  acc.devices[Name].whole = true;
+  acc.devices[Name].parent = DeviceID;
+  acc.devices[Name].node = Caption;
+  acc.devices[Name].name = Name;
+  acc.devices[Name].size = parseInt(Size) || 0;
+  acc.devices[Name].description = Description;
+  acc.devices[Name].removable = DriveType === '2';
 
   const volume = emptyVolume();
-  volume.id = id;
-  volume.node = id;
-  volume.name = volumename || null;
-  volume.parent = id;
+  volume.id = DeviceID;
+  volume.node = DeviceID;
+  volume.name = VolumeName;
+  volume.parent = DeviceID;
   volume.mounted = true;
-  volume.mountPoint = name;
-  volume.fs = filesystem;
-  volume.space.total = parseInt(size);
-  volume.space.available = parseInt(space);
-  volume.space.used = parseInt(size) - parseInt(space);
-  acc.devices[name].volumes = [volume];
+  volume.mountPoint = Name;
+  volume.fs = FileSystem;
+  volume.space.total = parseInt(Size) || 0;
+  volume.space.available = parseInt(FreeSpace) || 0;
+  volume.space.used = volume.space.total - volume.space.available;
+  acc.devices[Name].volumes = [volume];
 
   return acc;
 };
 
 export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
-  const lines = splitEOL(data) // split by line
-    .filter((s) => s.trim()) // remove empty lines
-    .splice(1); // remove header
+  // fix double \r\r coming from wmic
+  data = data.replace(/\r\r/gi, '\r');
+  var lines =
+    data.split(os.EOL)
+      .filter((s) => s.trim());
 
-  const { devices } = lines.reduce(
-    (acc, v) => parseWindowsProps(acc, v.split(/\t|\s{2,}/)),
+  var columns = lines[0].split(',');
+  var result = [];
+  for(var i = 1; i < lines.length; i++) {
+    var values = lines[i].split(',');
+    var obj = {};
+    values.map((val, j) => {
+      obj[columns[j]] = val;
+    });
+    result.push(obj);
+  }
+
+  const { devices } = result.reduce(
+    (acc, v) => parseWindowsProps(acc, v),
     { devices: {} },
   );
 

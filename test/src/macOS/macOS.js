@@ -13,7 +13,7 @@ import {
   addEmptyVolumeToDevice,
   addEmptyNode,
   parseMacOSToProps,
-  parseNodeId
+  parseNodeId,
 } from '../../../src/macOS/macOS';
 
 // tap :: Function -> a -> a
@@ -76,8 +76,8 @@ describe('macOS unit tests', function(){
   describe('getPropsTarget', function(){
     const acc = {
       devices: {
-        a: { volumes: { aa: {} } }
-      }
+        a: { volumes: { aa: {} } },
+      },
     };
     it('should return the device if no volume id is specified', function(done){
       expect(getPropsTarget(acc, ['a', undefined])).to.be.equal(acc.devices.a);
@@ -93,7 +93,7 @@ describe('macOS unit tests', function(){
   describe('addEmptyDevice', function(){
     it('should add an empty device at the specified id', function(done){
       const acc = {
-        devices: {}
+        devices: {},
       };
       addEmptyDevice(acc)('a');
       expect(acc.devices.a).to.be.an('object').that.has.all.keys(
@@ -140,7 +140,7 @@ describe('macOS unit tests', function(){
 
     it('should call addEmptyVolumeToDevice if provided both a device id and volume id', function(done){
       const acc = {
-        devices: {}
+        devices: {},
       };
       const addEmptyDeviceSpy = sinon.spy();
       const addEmptyDevice = () => addEmptyDeviceSpy;
@@ -157,7 +157,7 @@ describe('macOS unit tests', function(){
     it('should obtain the device id from the provided lines', function(done){
       const lines = [ 'Device Identifier:        disk0' ];
       const acc = {
-        devices: {}
+        devices: {},
       };
       const [devid, id] = parseNodeId(acc, lines);
       expect(devid).to.be.equal('disk0');
@@ -169,8 +169,8 @@ describe('macOS unit tests', function(){
       const lines = [ 'Device Identifier:        disk0s1' ];
       const acc = {
         devices: {
-          disk0: {}
-        }
+          disk0: {},
+        },
       };
       const [devid, id] = parseNodeId(acc, lines);
       expect(devid).to.be.equal('disk0');
@@ -202,7 +202,7 @@ describe('macOS unit tests', function(){
       'Allocation Block Size': { target: 'volume', key: 'blockSize', value: '4096 Bytes', nullable: false },
       'Read-Only Media': { target: 'device', key: 'readOnly', value: 'No', nullable: false },
       'Read-Only Volume': { target: 'volume', key: 'readOnly', value: 'No', nullable: 'Not applicable (not mounted)' },
-      'Removable Media': { target: 'device', key: 'removable', value: 'Fixed', nullable: false }
+      'Removable Media': { target: 'device', key: 'removable', value: 'Fixed', nullable: false },
     };
 
     it('should properly parse the provided keys and update the current node accordingly', function(done) {

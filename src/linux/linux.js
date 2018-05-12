@@ -112,7 +112,11 @@ export const parselsblk = (parselsblkDeviceData, parselsblkVolumeData) =>
   };
 
 export const parsefdisklDeviceData = (getNodeId, createNewDevice) => (acc) => ([head, ...tail]) => {
-  const [node, size, blocks] = head.match(/Disk\s(.*):\s.*,\s(\d+)\sbytes,\s(\d+) sectors/).slice(1);
+  const matches = head.match(/Disk\s(.*):\s.*,\s(\d+)\sbytes,\s(\d+) sectors/);
+  if(matches == null){
+    throw new Error(`parsefdisklDeviceData: error on parsing (head = ${head})`);
+  }
+  const [node, size, blocks] = matches.slice(1);
   const id = getNodeId(node);
   if(!acc.devices[id]){
     acc.devices[id] = createNewDevice(id, node);
@@ -134,7 +138,11 @@ export const parsefdisklDeviceData = (getNodeId, createNewDevice) => (acc) => ([
 export const parsefdisklVolumeData = (getNodeId, createNewVolume) => (acc) => (lines) =>
   lines.reduce(
     (acc, line) => {
-      const [node, sectors, description] = line.match(/([\w\\/]+)\s+.*\s(\d+)\s+[\w.]+\s(.*)/).slice(1);
+      const matches = line.match(/([\w\\/]+)\s+.*\s(\d+)\s+[\w.]+\s(.*)/);
+      if(matches == null){
+        throw new Error(`parsefdisklVolumeData: error on parsing (line = ${line})`);
+      }
+      const [node, sectors, description] = matches.slice(1);
       const id = getNodeId(node);
       if(!acc.volumes[id]){
         acc.volumes[id] = createNewVolume(id, node);
@@ -193,7 +201,7 @@ export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (
 
   return lines.reduce(
     (acc, line) => {
-      const [ node, filesystem, size, used, available, _, mountPoint ] = splitdfTLine(line);
+      const [ node, filesystem, size, used, available, , mountPoint ] = splitdfTLine(line);
       const id = getNodeId(node);
       acc.volumes[id] = createNewVolume(id, node);
       acc.volumes[id].mounted = true;
