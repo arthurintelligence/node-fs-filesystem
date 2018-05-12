@@ -72,36 +72,58 @@ const execute = (cmd, parser) => (filter, cb, sync = false) => {
   return composeP((v) => cb(null, v), parser(filter), stringify, child.exec)(cmd, ENVIRONMENT).catch(cb);
 };
 
+const inferDevSize = (devices) => {
+  for(const k in devices){
+    if(devices[k].size === null) {
+      var sizeSum = devices[k].volumes.reduce((size, vol) => {
+        return size + vol.space.total;
+      }, 0);
+      devices[k].size = sizeSum;
+    }
+  }
+  return devices;
+};
+
 const filesystem = (macOS, linux, windows, validate, platform) => (dev, callback) => {
+  var devices = null;
   switch(platform) {
   case 'darwin':
-    return macOS(...validate(dev, callback)).devices;
+    devices = macOS(...validate(dev, callback)).devices;
+    break;
   case 'linux':
-    return linux(...validate(dev, callback)).devices;
+    devices = linux(...validate(dev, callback)).devices;
+    break;
   case 'win32':
-    return windows(...validate(dev, callback)).devices;
+    devices = windows(...validate(dev, callback)).devices;
+    break;
   default:
     thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
       `${platform} at the moment`
     );
   }
+  return inferDevSize(devices);
 };
 
 const filesystemSync = (macOS, linux, windows, validateDev, platform) => (dev) => {
+  var devices = null;
   switch(platform){
   case 'darwin':
-    return macOS(validateDev(dev), null, true).devices;
+    devices = macOS(validateDev(dev), null, true).devices;
+    break;
   case 'linux':
-    return linux(validateDev(dev), null, true).devices;
+    devices = linux(validateDev(dev), null, true).devices;
+    break;
   case 'win32':
-    return windows(validateDev(dev), null, true).devices;
+    devices = windows(validateDev(dev), null, true).devices;
+    break;
   default:
     thrower(
       'fs.filesystem : Unsupported OS. fs.filesystem does not support ' +
       `${platform} at the moment`
     );
   }
+  return inferDevSize(devices);
 };
 
 const sync = filesystemSync(
