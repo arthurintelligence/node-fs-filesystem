@@ -1,6 +1,5 @@
 import F from '../functional';
 import { lasti as lastIndex, hasSubstr, splitEOL } from '../utilities';
-const { each } = F;
 const { compose, map, reduce, filter } = F.R;
 
 export const COMMAND = 'df -T && ' +
@@ -191,7 +190,7 @@ export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (
 
   return lines.reduce(
     (acc, line) => {
-      const [ node, filesystem, size, used, available, _, mountPoint ] = splitdfTLine(line);
+      const [ node, filesystem, size, used, available, , mountPoint ] = splitdfTLine(line);
       const id = getNodeId(node);
       acc.volumes[id] = createNewVolume(id, node);
       acc.volumes[id].mounted = true;
