@@ -2,13 +2,17 @@
   "name": "fs-filesystem",
   "version": "2.0.0",
   "description": "Read information about the filesystem of the current machine (devices and partitions)",
-  "main": "lib/fs-filesystem.js",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
   "repository": "https://github.com/qzdio/node-fs-filesystem",
   "author": "philippefutureboy <philippe@human.space>",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "babel -d lib/ src/",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build:cjs": "cross-env BABEL_ENV=commonjs babel -d lib/ src/",
+    "build:esm": "cross-env BABEL_ENV=es babel -d esm/ src/",
+    "clean": "rimraf lib && rimraf esm",
     "coverage": "istanbul cover -i 'lib/**' -x '**/__tests__/**' test.js",
     "coveralls": "coveralls < coverage/lcov.info",
     "lint": "npm run lint:fix",
@@ -16,10 +20,12 @@
     "lint:fix": "eslint --fix ./src/*.js ./test/*.js",
     "prepare": "npm run build",
     "prepublishOnly": "npm run test:ci && npm run build",
+    "release": "release-it",
     "test": "npm run lint && nyc npm run unit && nyc report --reporter=lcov",
     "test:ci": "npm run lint && nyc npm run unit && nyc report --reporter=text-lcov | coveralls",
     "test:no-cov": "npm run lint && npm run unit",
-    "unit": "mocha --require babel-register"
+    "unit": "mocha --require babel-register",
+    "watch": "npm run build:cjs -- -w"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
@@ -33,8 +39,11 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
+    "cross-env": "^5.1.5",
+    "cz-conventional-changelog": "^2.1.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.11.0",
@@ -45,8 +54,15 @@
     "mocha": "^5.1.1",
     "mocha-lcov-reporter": "^1.3.0",
     "mockery": "^2.1.0",
-    "nyc": "^11.7.1",
+    "nyc": "^11.7.3",
+    "release-it": "^7.4.3",
     "rewire": "^4.0.1",
+    "rimraf": "^2.6.2",
     "sinon": "^5.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }

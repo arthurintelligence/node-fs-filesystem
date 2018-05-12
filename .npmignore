@@ -4,4 +4,4 @@
 .eslintignore
 .estlintrc.json
 .travis.yml
-appvevoyor.yml
+appveyor.yml

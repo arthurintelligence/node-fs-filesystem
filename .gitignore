@@ -59,6 +59,7 @@ typings/
 
 # build files
 lib
+esm
 
 # MacOS Finder
 .DS_Store
