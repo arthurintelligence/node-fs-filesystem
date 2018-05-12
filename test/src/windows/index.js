@@ -30,7 +30,7 @@ describe('windows integration tests', function() {
               .that.has.keys('devices');
             expect(acc.devices).to.be.an('object');
             expect(Object.keys(acc.devices).length).to.be.at.least(1);
-            for (let k in acc.devices) {
+            for(let k in acc.devices) {
               expect(acc.devices[k].id).to.be.a('string');
               expect(acc.devices[k].node).to.be.a('string');
               expect(acc.devices[k].name).to.be.a('string');
@@ -84,7 +84,7 @@ describe('windows integration tests', function() {
         .that.has.keys('devices');
       expect(acc.devices).to.be.an('object');
       expect(Object.keys(acc.devices).length).to.be.equal(5);
-      for (let k in acc.devices) {
+      for(let k in acc.devices) {
         expect(acc.devices[k].id).to.be.a('string');
         expect(acc.devices[k].node).to.be.a('string');
         expect(acc.devices[k].name).to.be.a('string');

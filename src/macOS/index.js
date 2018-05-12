@@ -8,7 +8,7 @@ import {
   addEmptyVolumeToDevice,
   addEmptyNode,
   parseNodeId,
-  parseMacOSToProps
+  parseMacOSToProps,
 } from './macOS';
 
 export default{
@@ -18,5 +18,5 @@ export default{
     addEmptyNode(addEmptyDevice, addEmptyVolumeToDevice),
     parseNodeId,
     parseMacOSToProps(macOSFS, getMacOSBytes)
-  )
+  ),
 };

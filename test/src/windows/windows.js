@@ -49,7 +49,7 @@ describe('windows unit tests', function() {
           FreeSpace,
           Name,
           Size,
-          VolumeName
+          VolumeName,
         }
       ) => {
         parseWindowsPropsSpy({ Name, DeviceID, FileSystem, Size });
@@ -57,7 +57,7 @@ describe('windows unit tests', function() {
           DeviceID,
           Name,
           fs: FileSystem,
-          size: parseInt(Size)
+          size: parseInt(Size),
         };
         return acc;
       };
@@ -99,7 +99,7 @@ describe('windows unit tests', function() {
         FreeSpace: '0',
         Name: 'D:',
         Size: '445445',
-        VolumeName: 'VolName'
+        VolumeName: 'VolName',
       };
       parseWindowsProps(acc, input);
       expect(acc)
@@ -150,7 +150,7 @@ describe('windows unit tests', function() {
         FreeSpace: '0',
         Name: 'D:',
         Size: '445445',
-        VolumeName: 'VolName'
+        VolumeName: 'VolName',
       };
       parseWindowsProps(acc, input);
       expect(acc)

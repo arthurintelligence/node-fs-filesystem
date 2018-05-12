@@ -1,10 +1,10 @@
 import {
   COMMAND,
   parseWindows,
-  parseWindowsProps
+  parseWindowsProps,
 } from './windows';
 
 export default {
   COMMAND,
-  parser: parseWindows(parseWindowsProps)
+  parser: parseWindows(parseWindowsProps),
 };
