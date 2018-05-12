@@ -1,5 +1,7 @@
 # Node.js: fs-filesystem
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/arthurintelligence/node-fs-filesystem.svg)](https://greenkeeper.io/)
+
 `fs-filesystem` allows you to read the state of the filesystem of the host on which
 it is run. It returns information about both the devices and the partitions (volumes)
 of the system.
