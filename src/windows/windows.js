@@ -22,7 +22,7 @@ export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveTy
   const volume = emptyVolume();
   volume.id = DeviceID;
   volume.node = DeviceID;
-  volume.name = VolumeName || null;
+  volume.name = VolumeName;
   volume.parent = DeviceID;
   volume.mounted = true;
   volume.mountPoint = Name;
@@ -38,21 +38,19 @@ export const parseWindowsProps = (acc, { Caption, Description, DeviceID, DriveTy
 export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
   // fix double \r\r coming from wmic
   data = data.replace(/\r\r/gi, '\r');
-  var lines = 
+  var lines =
     data.split(os.EOL)
-    .filter((s) => s.trim());
+      .filter((s) => s.trim());
 
   var columns = lines[0].split(',');
   var result = [];
   for(var i = 1; i < lines.length; i++) {
-    if(lines[i].length > 0) {
-      var values = lines[i].split(',');
-      var obj = {};
-      values.map((val, j) => {
-        obj[columns[j]] = val;
-      });
-      result.push(obj);
-    }
+    var values = lines[i].split(',');
+    var obj = {};
+    values.map((val, j) => {
+      obj[columns[j]] = val;
+    });
+    result.push(obj);
   }
 
   const { devices } = result.reduce(
