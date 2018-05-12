@@ -1,0 +1,38 @@
+Filesystem           Type     1K-blocks      Used Available Use% Mounted on
+devtmpfs             devtmpfs  16288712         0  16288712   0% /dev
+tmpfs                tmpfs     16302312        32  16302280   1% /dev/shm
+tmpfs                tmpfs     16302312      2400  16299912   1% /run
+tmpfs                tmpfs     16302312         0  16302312   0% /sys/fs/cgroup
+/dev/sdb2            ext4     239716896 186517488  40999372  82% /
+tmpfs                tmpfs     16302312      2964  16299348   1% /tmp
+/dev/sdb1            ext4        499656    182464    280496  40% /boot
+/dev/sda3            ext4     420890572  36587044 362900428  10% /opt
+/dev/sda2            ext4     252674084 165383892  74432012  69% /var
+/dev/sda1            ext4     279588068 128847668 136515032  49% /home
+tmpfs                tmpfs      3260460        16   3260444   1% /run/user/42
+//192.168.1.2/Shared cifs     976759804 678706076 298053728  70% /mnt/wksalex
+tmpfs                tmpfs      3260460         0   3260460   0% /run/user/1001
+tmpfs                tmpfs      3260460        24   3260436   1% /run/user/1000
+
+**********
+
+fdisk: cannot open /dev/sda: Permission denied
+fdisk: cannot open /dev/sdb: Permission denied
+fdisk: cannot open /dev/loop0: Permission denied
+fdisk: cannot open /dev/loop1: Permission denied
+fdisk: cannot open /dev/mapper/docker-8:2-9702090-pool: Permission denied
+
+**********
+
+KNAME="loop0" FSTYPE="xfs" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="loop"
+KNAME="loop1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="loop"
+KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="WDC WD1003FZEX-0" TYPE="disk"
+KNAME="sda1" FSTYPE="ext4" MOUNTPOINT="/home" LABEL="home" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda2" FSTYPE="ext4" MOUNTPOINT="/var" LABEL="var" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda3" FSTYPE="ext4" MOUNTPOINT="/opt" LABEL="opt" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda4" FSTYPE="swap" MOUNTPOINT="[SWAP]" LABEL="swap" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 840 " TYPE="disk"
+KNAME="sdb1" FSTYPE="ext4" MOUNTPOINT="/boot" LABEL="boot" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdb2" FSTYPE="ext4" MOUNTPOINT="/" LABEL="os" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="dm-0" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="dm"
+KNAME="dm-0" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="dm"
