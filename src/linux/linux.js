@@ -148,25 +148,28 @@ export const parsefdisklVolumeData = (getNodeId, createNewVolume) => (acc) => (l
 
 export const parsefdiskl = (parsefdisklDeviceData, parsefdisklVolumeData) =>
   (fdiskl) => (acc) => {
-    const blocks =
-      splitEOL(2)(fdiskl) // Split by every two line
-        .filter((s) => s.trim()); // Remove empty lines
-
-    blocks.reduce((a, block, i) => {
-      if((i + 1) % 2) {
-        const lines =
-          splitEOL(block) // Split by line
-            .filter((s) => s.trim()); // Remove empty lines
-        return parsefdisklDeviceData(a)(lines);
+    const processblock = (block) => {
+      if(block[0].startsWith('Disk')) {
+        return parsefdisklDeviceData(acc)(block);
+      }else if(block[0].startsWith('Device')) {
+        return parsefdisklVolumeData(acc)(block.slice(1));
       }
-      const lines =
-        splitEOL(block) // Split by line
-          .splice(1)
-          .filter((s) => s.trim()); // Remove empty lines
-
-      return parsefdisklVolumeData(a)(lines);
-    }, acc);
-
+    };
+    const lines = splitEOL(fdiskl);
+    var block = [];
+    var i = 0;
+    while(i < lines.length) {
+      var item = lines[i];
+      if(item === '' && block.length > 0) {
+        // process previous block
+        processblock(block);
+        // start new block
+        block = [];
+      }else if(item !== '') {
+        block.push(item);
+      }
+      i++;
+    };
     return acc;
   };
 

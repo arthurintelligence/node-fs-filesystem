@@ -106,10 +106,11 @@ describe('linux integration tests', function() {
       done();
     });
 
-    it('should properly parse the provided static input (2)', function(done){
+    it('should properly parse the provided static input2', function(done){
       const input = fs.readFileSync(path.resolve(__dirname, 'input2.txt')).toString().replace(/\r\n/g, '\n');
       const userFilter = () => true;
-      expect(linux.parser(userFilter)(input)).to.not.throw();
+      const parseit = () => linux.parser(userFilter)(input);
+      expect(parseit).to.not.throw();
       done();
     });
   });

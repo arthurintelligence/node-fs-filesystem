@@ -242,17 +242,17 @@ describe('linux unit tests', function(){
   describe('parsefdiskl', function(){
     it('should split the input into three blocks and call the proper parser functions', function(done){
       const input =
-        `a${os.EOL}` +
+        `Disk a${os.EOL}` +
         `b${os.EOL}` +
         `c${os.EOL}` +
         `${os.EOL}` +
-        `header${os.EOL}` +
+        `Device ${os.EOL}` +
         `0${os.EOL}` +
         `1${os.EOL}` +
         `2${os.EOL}` +
         `${os.EOL}` +
         `${os.EOL}` +
-        `d${os.EOL}` +
+        `Disk d${os.EOL}` +
         `e${os.EOL}` +
         `f${os.EOL}`;
       const parsefdisklDeviceDataSpy = sinon.spy();
@@ -262,8 +262,8 @@ describe('linux unit tests', function(){
       parsefdiskl(parsefdisklDeviceData, parsefdisklVolumeData)(input)({ devices: {}, volumes: {} });
 
       expect(parsefdisklDeviceDataSpy.callCount).to.be.equal(2);
-      expect(parsefdisklDeviceDataSpy.getCall(0).calledWith(['a', 'b', 'c'])).to.be.true;
-      expect(parsefdisklDeviceDataSpy.getCall(1).calledWith(['d', 'e', 'f'])).to.be.true;
+      expect(parsefdisklDeviceDataSpy.getCall(0).calledWith(['Disk a', 'b', 'c'])).to.be.true;
+      expect(parsefdisklDeviceDataSpy.getCall(1).calledWith(['Disk d', 'e', 'f'])).to.be.true;
       expect(parsefdisklVolumeDataSpy.callCount).to.be.equal(1);
       expect(parsefdisklVolumeDataSpy.getCall(0).calledWith(['0', '1', '2'])).to.be.true;
       done();
