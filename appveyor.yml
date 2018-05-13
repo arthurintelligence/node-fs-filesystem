@@ -15,23 +15,25 @@ platform:
 - x64
 
 cache:
- - "%LOCALAPPDATA%\\Yarn"
+  # local npm modules
+  - node_modules
+  # npm cache
+  - '%APPDATA%\npm-cache'
 
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # install modules
-  - yarn
+  - npm install
 
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
-  - yarn --version
   # run tests
-  - yarn run test
+  - npm run test
 
 # Don't actually build.
 build: off
