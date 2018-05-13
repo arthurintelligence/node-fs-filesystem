@@ -1,5 +1,5 @@
 import F from '../functional';
-import { lasti as lastIndex, hasSubstr, splitEOL } from '../utilities';
+import { lasti as lastIndex, hasSubstr } from '../utilities';
 const { compose, map, reduce, filter } = F.R;
 
 export const COMMAND = 'df -T && ' +
@@ -95,7 +95,7 @@ export const parselsblkVolumeData = (createNewVolume) => (acc) =>
 export const parselsblk = (parselsblkDeviceData, parselsblkVolumeData) =>
   (lsblk) => (acc) => {
     const lines =
-      splitEOL(lsblk) // Split by line
+      lsblk.split('\n') // Split by line
         .filter((s) => s.trim()); // Remove empty lines
 
     lines.forEach((line) => {
@@ -163,7 +163,7 @@ export const parsefdiskl = (parsefdisklDeviceData, parsefdisklVolumeData) =>
         return parsefdisklVolumeData(acc)(block.slice(1));
       }
     };
-    const lines = splitEOL(fdiskl);
+    const lines = fdiskl.split('\n');
     var block = [];
     var i = 0;
     while(i < lines.length) {
@@ -195,7 +195,7 @@ export const splitdfTLine = (line) =>
 
 export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (acc) => {
   const lines =
-    splitEOL(dft)
+    dft.split('\n')
       .filter((s) => s.trim() && !hasSubstr(s, 'tmpfs')) // remove empty lines & tmp file systems
       .slice(1); // remove table header
 
@@ -218,7 +218,8 @@ export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (
 
 export const parseLinux = (mergeVolumesAndDevicesLinux, parselsblk, parsefdiskl, parsedfT) =>
   (userFilter) => (output) => {
-    const [dft, fdiskl, lsblk] = output.split(/\n\*+\n\n/); // Split utilities
+    const parts = output.split('\n**********\n\n');
+    const [dft, fdiskl, lsblk] = parts;
 
     const accumulator = compose(
       mergeVolumesAndDevicesLinux,

@@ -1,0 +1,3 @@
+test/src/linux/*.txt text eol=lf
+test/src/macOS/*.txt text eol=lf
+test/src/macOS/*.txt text eol=crlf

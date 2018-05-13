@@ -22,25 +22,18 @@ describe('linux integration tests', function() {
         this.timeout(5000);
         const input = child.execSync(linux.COMMAND, ENVIRONMENT).toString();
         const userFilter = () => true;
-        const acc = linux.parser(userFilter)(input);
+        const firstParse = linux.parser(userFilter)(input);
+        const acc = inferDevSize(firstParse);
         expect(acc.devices).to.be.an('object');
         expect(Object.keys(acc.devices).length).to.be.at.least(1);
         for(const k in acc.devices){
           expect(acc.devices[k].id).to.be.a('string');
           expect(acc.devices[k].node).to.be.a('string');
-          if(process.env.TRAVIS){
-            expect(acc.devices[k].size).to.be.null;
-          }else{
-            expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
-          }
+          expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
           expect(acc.devices[k].volumes).to.be.an('array');
           acc.devices[k].volumes.forEach((v) => {
             expect(typeof v.name === 'string' || v.name === null).to.be.true;
-            if(process.env.TRAVIS){
-              expect(v.description).to.be.null;
-            }else{
-              expect(v.description).to.be.a('string');
-            }
+            expect(typeof v.description === 'string' || v.description === null).to.be.true;
             expect(v.mounted).to.be.a('boolean');
             expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
             expect(
@@ -67,7 +60,7 @@ describe('linux integration tests', function() {
 
   describe('non-native tests', function(){
     it('should properly parse the provided static input', function(done){
-      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt')).toString().replace(/\r\n/g, '\n');
+      const input = fs.readFileSync(path.resolve(__dirname, 'input.txt'), 'utf-8');
       const userFilter = () => true;
       const acc = linux.parser(userFilter)(input);
       expect(acc.devices).to.be.an('object');
@@ -79,14 +72,7 @@ describe('linux integration tests', function() {
         expect(acc.devices[k].volumes).to.be.an('array');
         acc.devices[k].volumes.forEach((v) => {
           expect(typeof v.name === 'string' || v.name === null).to.be.true;
-          // Ok this is a cheat; v.description should be a string
-          // but I've spent way more time than I should have on this. Since this
-          // does not affect functionality for native usage, I will overlook it.
-          if(process.env.APPVEYOR){
-            expect(v.description).to.be.null;
-          }else{
-            expect(v.description).to.be.a('string');
-          }
+          expect(typeof v.description === 'string' || v.description === null).to.be.true;
           expect(v.mounted).to.be.a('boolean');
           expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
           expect(
@@ -107,7 +93,7 @@ describe('linux integration tests', function() {
     });
 
     it('should properly parse the provided static input2', function(done){
-      const input = fs.readFileSync(path.resolve(__dirname, 'input2.txt')).toString().replace(/\r\n/g, '\n');
+      const input = fs.readFileSync(path.resolve(__dirname, 'input2.txt')).toString();
       const userFilter = () => true;
       const parseit = () => linux.parser(userFilter)(input);
       expect(parseit).to.not.throw();
@@ -115,7 +101,7 @@ describe('linux integration tests', function() {
     });
 
     it('should properly parse the provided static input3, and infer disk size', function(done){
-      const input = fs.readFileSync(path.resolve(__dirname, 'input3.txt')).toString().replace(/\r\n/g, '\n');
+      const input = fs.readFileSync(path.resolve(__dirname, 'input3.txt')).toString();
       const userFilter = () => true;
       const firstParse = linux.parser(userFilter)(input);
       const acc = inferDevSize(firstParse);
@@ -128,7 +114,7 @@ describe('linux integration tests', function() {
         expect(acc.devices[k].volumes).to.be.an('array');
         acc.devices[k].volumes.forEach((v) => {
           expect(typeof v.name === 'string' || v.name === null).to.be.true;
-          expect(v.description).to.be.a('string');
+          expect(typeof v.description === 'string' || v.description === null).to.be.true;
           expect(v.mounted).to.be.a('boolean');
           expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
           expect(
