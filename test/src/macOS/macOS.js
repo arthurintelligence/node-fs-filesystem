@@ -205,6 +205,13 @@ describe('macOS unit tests', function(){
       'Removable Media': { target: 'device', key: 'removable', value: 'Fixed', nullable: false },
     };
 
+    it('should properly ignore uknown keys', function(done) {
+      const parseProps = parseMacOSToProps();
+      const node = parseProps(emptyDevice(), 'Unknown key', 'value');
+      expect(node).to.be.an('object');
+      done();
+    });
+
     it('should properly parse the provided keys and update the current node accordingly', function(done) {
       const macOSFSSpy = sinon.spy();
       const macOSFS = (value) => { macOSFSSpy(value); return 'FAT32'; };

@@ -75,8 +75,7 @@ describe('windows integration tests', function() {
     it('should properly parse the provided static input', function(done) {
       const input = fs
         .readFileSync(path.resolve(__dirname, 'input.txt'))
-        .toString('utf-16le')
-        .replace('\r\n', os.EOL);
+        .toString('utf-16le');
       const userFilter = () => true;
       const acc = windows.parser(userFilter)(input);
       expect(acc)

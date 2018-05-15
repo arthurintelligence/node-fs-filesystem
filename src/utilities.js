@@ -1,16 +1,11 @@
-import os from 'os';
-
 // --------------------------------------
 // Common Core - Utility Functions
 // --------------------------------------
 
 export const lasti = (a) => a[a.length - 1];
-export const stringify = (v) => v && (typeof v === 'object' || typeof v === 'symbol') ? v.toString() : `${v}`;
+export const stringify = (v) => v && v.toString ? v.toString() : `${v}`;
 export const hasSubstr = (s, sub) => s.indexOf(sub) !== -1;
 export const getYesNo = (v) => v === 'Yes' ? true : v === 'No' ? false : undefined;
-export const splitEOL = (s) => typeof s === 'number'
-  ? (v) => v.split(os.EOL.repeat(s))
-  : s.split(os.EOL);
 
 // --------------------------------------
 // Common Core - Empty FS Objects

@@ -1,17 +1,18 @@
-import os from 'os';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { parseWindows, parseWindowsProps } from '../../../src/windows/windows';
+
+const winEOL = '\r\n';
 
 describe('windows unit tests', function() {
   describe('parseWindows', function() {
     it('should call parseWindowsProps after parsing csv text', function(done) {
       const input =
-        `A,B,C${os.EOL}` +
-        `0,a,b${os.EOL}` +
-        `1,c,${os.EOL}` +
-        `2,e,f${os.EOL}` +
-        `3,,h${os.EOL}`;
+        `A,B,C${winEOL}` +
+        `0,a,b${winEOL}` +
+        `1,c,${winEOL}` +
+        `2,e,f${winEOL}` +
+        `3,,h${winEOL}`;
       const parseWindowsPropsSpy = sinon.spy();
       const parseWindowsProps = (acc, x) => {
         parseWindowsPropsSpy(x);
@@ -33,10 +34,10 @@ describe('windows unit tests', function() {
 
     it('should call the filter function on all devices', function(done) {
       const input =
-        `Caption,Name,Filesystem,FreeSpace${os.EOL}` +
-        `C:,C:,NTFS,2048${os.EOL}` +
-        `D:,D:,FAT32,4096${os.EOL}` +
-        `E:,E:,FAT16,1024${os.EOL}`;
+        `Caption,Name,Filesystem,FreeSpace${winEOL}` +
+        `C:,C:,NTFS,2048${winEOL}` +
+        `D:,D:,FAT32,4096${winEOL}` +
+        `E:,E:,FAT16,1024${winEOL}`;
       const parseWindowsPropsSpy = sinon.spy();
       const parseWindowsProps = (
         acc,

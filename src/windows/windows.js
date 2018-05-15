@@ -1,5 +1,4 @@
 import F from '../functional';
-import os from 'os';
 import { emptyDevice, emptyVolume } from '../utilities';
 const { filter } = F;
 
@@ -39,7 +38,7 @@ export const parseWindows = (parseWindowsProps) => (userFilter) => (data) => {
   // fix double \r\r coming from wmic
   data = data.replace(/\r\r/gi, '\r');
   var lines =
-    data.split(os.EOL)
+    data.split('\r\n')
       .filter((s) => s.trim());
 
   var columns = lines[0].split(',');
