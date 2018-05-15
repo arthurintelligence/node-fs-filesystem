@@ -135,6 +135,22 @@ describe('linux unit tests', function(){
   });
 
   describe('parsefdisklDeviceData', function(){
+    it('should throw when input is not in english', function(done){
+      const input = [
+        'Disco /dev/sdb: 232,9 GiB, 250059350016 bytes, 488397168 sectores',
+        'Unidades: sectores de 1 * 512 = 512 bytes',
+        'Tamaño de sector (lógico/físico): 512 bytes / 512 bytes',
+        'Tamaño de E/S (mínimo/óptimo): 512 bytes / 512 bytes',
+        'Tipo de etiqueta de disco: dos',
+        'Identificador del disco: 0x000521de',
+      ];
+      const getNodeId = () => 'sdb';
+      const createNewDevice = () => { return {}; };
+      const parseit = () => parsefdisklDeviceData(getNodeId, createNewDevice)({ devices: {}, volumes: {} })(input);
+      expect(parseit).to.throw();
+      done();
+    });
+
     it('should generate a new device node and add the size, blockSize and ' +
       'volumeBlockSize properties', function(done){
       const input = [
@@ -196,6 +212,15 @@ describe('linux unit tests', function(){
   });
 
   describe('parsefdisklVolumeData', function(){
+    it('should throw when input is invalid', function(done){
+      const input = ['Invalid data'];
+      const getNodeId = () => 'sda1';
+      const createNewVolume = () => { return {}; };
+      const parseit = () => parsefdisklVolumeData(getNodeId, createNewVolume)({ devices: {}, volumes: {} })(input);
+      expect(parseit).to.throw();
+      done();
+    });
+
     it('should generate a new volume node and add the blocks and description ' +
       'properties', function(done){
       const input = ['/dev/sda1       2048      4095      2048     1.1M BIOS boot'];
