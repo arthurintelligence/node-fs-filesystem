@@ -73,12 +73,12 @@ const execute = (cmd, parser) => (filter, cb, sync = false) => {
 };
 
 const inferDevSize = (result) => {
-  for(const k in result.devices){
-    if(result.devices[k].size === null) {
-      var sizeSum = result.devices[k].volumes.reduce((size, vol) => {
+  for(const k in result){
+    if(result[k].size === null) {
+      var sizeSum = result[k].volumes.reduce((size, vol) => {
         return size + vol.space.total;
       }, 0);
-      result.devices[k].size = sizeSum;
+      result[k].size = sizeSum;
     }
   }
   return result;
