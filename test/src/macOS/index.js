@@ -91,5 +91,39 @@ describe('macOS integration tests', function() {
       }
       done();
     });
+
+    it('should properly parse the provided static input2 (high sierra)', function(done){
+      const input = fs.readFileSync(path.resolve(__dirname, 'input2.txt')).toString().replace(/\r\n/g, '\n');
+      const userFilter = () => true;
+      const acc = macOS.parser(userFilter)(input);
+      expect(acc.devices).to.be.an('object');
+      expect(Object.keys(acc.devices).length).to.be.at.least(1);
+      for(const k in acc.devices){
+        expect(acc.devices[k].id).to.be.a('string');
+        expect(acc.devices[k].node).to.be.a('string');
+        expect(acc.devices[k].size).to.be.a('number').that.is.gte(0);
+        expect(acc.devices[k].description).to.be.a('string');
+        expect(acc.devices[k].volumes).to.be.an('array');
+        acc.devices[k].volumes.forEach((v) => {
+          expect(typeof v.name === 'string' || v.name === null).to.be.true;
+          expect(typeof v.description === 'string' || v.description === null).to.be.true;
+          expect(v.mounted).to.be.a('boolean');
+          expect(v.space).to.be.an('object').that.has.all.keys('total', 'available', 'used');
+          expect(
+            (
+              v.space.total === null &&
+              v.space.available === null &&
+              v.space.used === null
+            ) ||
+            (
+              typeof v.space.total === 'number' && v.space.total >= 0 &&
+              typeof v.space.available === 'number' && v.space.available >= 0 &&
+              typeof v.space.used === 'number' && v.space.used >= 0
+            )
+          ).to.be.true;
+        });
+      }
+      done();
+    });
   });
 });
