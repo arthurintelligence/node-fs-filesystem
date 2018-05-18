@@ -1,0 +1,75 @@
+Filesystem           Type     1K-blocks      Used Available Use% Mounted on
+devtmpfs             devtmpfs  16288712         0  16288712   0% /dev
+tmpfs                tmpfs     16302312      3244  16299068   1% /dev/shm
+tmpfs                tmpfs     16302312      2392  16299920   1% /run
+tmpfs                tmpfs     16302312         0  16302312   0% /sys/fs/cgroup
+/dev/sdb2            ext4     239716896 186517500  40999360  82% /
+tmpfs                tmpfs     16302312      2940  16299372   1% /tmp
+/dev/sdb1            ext4        499656    182464    280496  40% /boot
+/dev/sda3            ext4     420890572  36587044 362900428  10% /opt
+/dev/sda2            ext4     252674084 165120328  74695576  69% /var
+/dev/sda1            ext4     279588068 128161732 137200968  49% /home
+tmpfs                tmpfs      3260460        16   3260444   1% /run/user/42
+tmpfs                tmpfs      3260460       156   3260304   1% /run/user/1000
+//192.168.1.2/Shared cifs     976759804 678048024 298711780  70% /mnt/wksalex
+tmpfs                tmpfs      3260460         0   3260460   0% /run/user/1001
+
+**********
+
+Disk /dev/sda: 931.5 GiB, 1000204886016 bytes, 1953525168 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+Disklabel type: dos
+Disk identifier: 0x000ed5c4
+
+Device     Boot      Start        End   Sectors   Size Id Type
+/dev/sda1             2048  568361422 568359375   271G 83 Linux
+/dev/sda2        568363008 1082034882 513671875   245G 83 Linux
+/dev/sda3       1082036224 1937504973 855468750 407.9G 83 Linux
+/dev/sda4       1937506304 1953525167  16018864   7.7G 82 Linux swap / Solaris
+
+
+Disk /dev/sdb: 232.9 GiB, 250059350016 bytes, 488397168 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x000521de
+
+Device     Boot   Start       End   Sectors   Size Id Type
+/dev/sdb1  *       2048   1050623   1048576   512M 83 Linux
+/dev/sdb2       1050624 488396799 487346176 232.4G 83 Linux
+
+
+Disk /dev/loop0: 100 GiB, 107374182400 bytes, 209715200 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/loop1: 2 GiB, 2147483648 bytes, 4194304 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/mapper/docker-8:2-9702090-pool: 100 GiB, 107374182400 bytes, 209715200 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 65536 bytes / 65536 bytes
+
+**********
+
+KNAME="loop0" FSTYPE="xfs" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="loop"
+KNAME="loop1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="loop"
+KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="WDC WD1003FZEX-0" TYPE="disk"
+KNAME="sda1" FSTYPE="ext4" MOUNTPOINT="/home" LABEL="home" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda2" FSTYPE="ext4" MOUNTPOINT="/var" LABEL="var" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda3" FSTYPE="ext4" MOUNTPOINT="/opt" LABEL="opt" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sda4" FSTYPE="swap" MOUNTPOINT="[SWAP]" LABEL="swap" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 840 " TYPE="disk"
+KNAME="sdb1" FSTYPE="ext4" MOUNTPOINT="/boot" LABEL="boot" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="sdb2" FSTYPE="ext4" MOUNTPOINT="/" LABEL="os" RO="0" RM="0" MODEL="" TYPE="part"
+KNAME="dm-0" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="dm"
+KNAME="dm-0" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="dm"

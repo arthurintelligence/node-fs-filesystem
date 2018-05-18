@@ -1,4 +1,3 @@
-import os from 'os';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -6,9 +5,8 @@ import {
   stringify,
   hasSubstr,
   getYesNo,
-  splitEOL,
   emptyDevice,
-  emptyVolume
+  emptyVolume,
 } from '../../src/utilities.js';
 
 describe('general utilities', function() {
@@ -45,7 +43,7 @@ describe('general utilities', function() {
   describe('stringify', function(){
     it('should call the toString method on the passed object', function(done){
       const o = {
-        toString: sinon.spy()
+        toString: sinon.spy(),
       };
       stringify(o);
       expect(o.toString.calledOnce).to.be.true;
@@ -102,35 +100,11 @@ describe('general utilities', function() {
     });
   });
 
-  describe('splitEOL', function(){
-    it('should split string on the EOL character', function(done){
-      const split = splitEOL(['a', 'b', 'c'].join(os.EOL));
-      expect(split[0]).to.be.equal('a');
-      expect(split[1]).to.be.equal('b');
-      expect(split[2]).to.be.equal('c');
-      done();
-    });
-
-    it('should return a function if provided a number', function(done){
-      expect(splitEOL(2)).to.be.a('function');
-      done();
-    });
-
-    it('should split string on multiple EOL characters', function(done){
-      const arr = [`a${os.EOL}a`, `a${os.EOL}a`, `a${os.EOL}a`];
-      const split = splitEOL(2)(arr.join(`${os.EOL}${os.EOL}`));
-      expect(split[0]).to.be.equal(arr[0]);
-      expect(split[1]).to.be.equal(arr[1]);
-      expect(split[2]).to.be.equal(arr[2]);
-      done();
-    });
-  });
-
   describe('emptyDevice', function(){
     it('should return an empty object representation of a device', function(done){
       const props = [
         'id', 'node', 'whole', 'parent', 'name', 'size', 'description',
-        'protocol', 'blockSize', 'readOnly', 'removable'
+        'protocol', 'blockSize', 'readOnly', 'removable',
       ];
       const node = emptyDevice();
       expect(node).to.be.an('object').that.has.all.keys(...props);
@@ -144,7 +118,7 @@ describe('general utilities', function() {
     it('should return an empty object representation of a volume', function(done){
       const props = [
         'id', 'name', 'node', 'parent', 'whole', 'description', 'blockSize', 'blocks', 'readOnly',
-        'mounted', 'mountPoint', 'partitionType', 'fs', 'space'
+        'mounted', 'mountPoint', 'partitionType', 'fs', 'space',
       ];
       const node = emptyVolume();
       expect(node).to.be.an('object').that.has.all.keys(...props);

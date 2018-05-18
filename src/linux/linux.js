@@ -1,6 +1,5 @@
 import F from '../functional';
-import { lasti as lastIndex, hasSubstr, splitEOL } from '../utilities';
-const { each } = F;
+import { lasti as lastIndex, hasSubstr } from '../utilities';
 const { compose, map, reduce, filter } = F.R;
 
 export const COMMAND = 'df -T && ' +
@@ -96,7 +95,7 @@ export const parselsblkVolumeData = (createNewVolume) => (acc) =>
 export const parselsblk = (parselsblkDeviceData, parselsblkVolumeData) =>
   (lsblk) => (acc) => {
     const lines =
-      splitEOL(lsblk) // Split by line
+      lsblk.split('\n') // Split by line
         .filter((s) => s.trim()); // Remove empty lines
 
     lines.forEach((line) => {
@@ -113,7 +112,11 @@ export const parselsblk = (parselsblkDeviceData, parselsblkVolumeData) =>
   };
 
 export const parsefdisklDeviceData = (getNodeId, createNewDevice) => (acc) => ([head, ...tail]) => {
-  const [node, size, blocks] = head.match(/Disk\s(.*):\s.*,\s(\d+)\sbytes,\s(\d+) sectors/).slice(1);
+  const matches = head.match(/Disk\s(.*):\s.*,\s(\d+)\sbytes,\s(\d+) sectors/);
+  if(matches == null){
+    throw new Error(`parsefdisklDeviceData: error on parsing (head = ${head})`);
+  }
+  const [node, size, blocks] = matches.slice(1);
   const id = getNodeId(node);
   if(!acc.devices[id]){
     acc.devices[id] = createNewDevice(id, node);
@@ -135,7 +138,11 @@ export const parsefdisklDeviceData = (getNodeId, createNewDevice) => (acc) => ([
 export const parsefdisklVolumeData = (getNodeId, createNewVolume) => (acc) => (lines) =>
   lines.reduce(
     (acc, line) => {
-      const [node, sectors, description] = line.match(/([\w\\/]+)\s+.*\s(\d+)\s+[\w.]+\s(.*)/).slice(1);
+      const matches = line.match(/([\w\\/]+)\s+.*\s(\d+)\s+[\w.]+\s(.*)/);
+      if(matches == null){
+        throw new Error(`parsefdisklVolumeData: error on parsing (line = ${line})`);
+      }
+      const [node, sectors, description] = matches.slice(1);
       const id = getNodeId(node);
       if(!acc.volumes[id]){
         acc.volumes[id] = createNewVolume(id, node);
@@ -149,25 +156,28 @@ export const parsefdisklVolumeData = (getNodeId, createNewVolume) => (acc) => (l
 
 export const parsefdiskl = (parsefdisklDeviceData, parsefdisklVolumeData) =>
   (fdiskl) => (acc) => {
-    const blocks =
-      splitEOL(2)(fdiskl) // Split by every two line
-        .filter((s) => s.trim()); // Remove empty lines
-
-    blocks.reduce((a, block, i) => {
-      if((i + 1) % 2) {
-        const lines =
-          splitEOL(block) // Split by line
-            .filter((s) => s.trim()); // Remove empty lines
-        return parsefdisklDeviceData(a)(lines);
+    const processblock = (block) => {
+      if(block[0].startsWith('Disk')) {
+        return parsefdisklDeviceData(acc)(block);
+      }else if(block[0].startsWith('Device')) {
+        return parsefdisklVolumeData(acc)(block.slice(1));
       }
-      const lines =
-        splitEOL(block) // Split by line
-          .splice(1)
-          .filter((s) => s.trim()); // Remove empty lines
-
-      return parsefdisklVolumeData(a)(lines);
-    }, acc);
-
+    };
+    const lines = fdiskl.split('\n');
+    var block = [];
+    var i = 0;
+    while(i < lines.length) {
+      var item = lines[i];
+      if(item === '' && block.length > 0) {
+        // process previous block
+        processblock(block);
+        // start new block
+        block = [];
+      }else if(item !== '') {
+        block.push(item);
+      }
+      i++;
+    };
     return acc;
   };
 
@@ -185,13 +195,13 @@ export const splitdfTLine = (line) =>
 
 export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (acc) => {
   const lines =
-    splitEOL(dft)
+    dft.split('\n')
       .filter((s) => s.trim() && !hasSubstr(s, 'tmpfs')) // remove empty lines & tmp file systems
       .slice(1); // remove table header
 
   return lines.reduce(
     (acc, line) => {
-      const [ node, filesystem, size, used, available, _, mountPoint ] = splitdfTLine(line);
+      const [ node, filesystem, size, used, available, , mountPoint ] = splitdfTLine(line);
       const id = getNodeId(node);
       acc.volumes[id] = createNewVolume(id, node);
       acc.volumes[id].mounted = true;
@@ -208,7 +218,8 @@ export const parsedfT = (getNodeId, createNewVolume, splitdfTLine) => (dft) => (
 
 export const parseLinux = (mergeVolumesAndDevicesLinux, parselsblk, parsefdiskl, parsedfT) =>
   (userFilter) => (output) => {
-    const [dft, fdiskl, lsblk] = output.split(/\n\*+\n\n/); // Split utilities
+    const parts = output.split('\n**********\n\n');
+    const [dft, fdiskl, lsblk] = parts;
 
     const accumulator = compose(
       mergeVolumesAndDevicesLinux,

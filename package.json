@@ -2,8 +2,7 @@
   "name": "fs-filesystem",
   "version": "2.0.0",
   "description": "Read information about the filesystem of the current machine (devices and partitions)",
-  "main": "lib/index.js",
-  "module": "esm/index.js",
+  "main": "lib/fs-filesystem.js",
   "repository": "https://github.com/qzdio/node-fs-filesystem",
   "author": "philippefutureboy <philippe@human.space>",
   "license": "MIT",
@@ -20,11 +19,13 @@
     "lint:fix": "eslint --fix ./src/*.js ./test/*.js",
     "prepare": "npm run build",
     "prepublishOnly": "npm run test:ci && npm run build",
+    "show": "npm run build && node ./lib/devel.js",
     "release": "release-it",
     "test": "npm run lint && nyc npm run unit && nyc report --reporter=lcov",
     "test:ci": "npm run lint && nyc npm run unit && nyc report --reporter=text-lcov | coveralls",
     "test:no-cov": "npm run lint && npm run unit",
     "unit": "mocha --require babel-register",
+    "unit:debug": "mocha --require babel-register --inspect-brk",
     "watch": "npm run build:cjs -- -w"
   },
   "dependencies": {

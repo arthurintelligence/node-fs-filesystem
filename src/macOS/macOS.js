@@ -157,7 +157,7 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
         if(node.space.total !== null && node.space.used === null){
           node.space.used = node.space.total - node.space.available;
         }
-      }
+      },
     },
     'Volume Free Space': {
       target: 'volume',
@@ -194,19 +194,15 @@ export const parseMacOSToProps = (macOSFS, getMacOSBytes) => {
   return (node, key, value) => {
     // Property ought to be mapped on current node
     if(PROPERTY_MAP[key] && PROPERTY_MAP[key].target === nodeType(node)){
-      if(PROPERTY_MAP[key]) {
-        PROPERTY_MAP[key].mapper(node, value);
-      }
+      PROPERTY_MAP[key].mapper(node, value);
       return node;
     }
 
     // Property ought to be mapped on both device and volume
     if(PROPERTY_MAP[key] && PROPERTY_MAP[key].target === 'dual'){
-      if(PROPERTY_MAP[key]){
-        PROPERTY_MAP[key].mapper(node, value);
-        if(node.volumes && node.volumes[node.id]){
-          PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
-        }
+      PROPERTY_MAP[key].mapper(node, value);
+      if(node.volumes && node.volumes[node.id]){
+        PROPERTY_MAP[key].mapper(node.volumes[node.id], value);
       }
       return node;
     }

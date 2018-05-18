@@ -1,4 +1,3 @@
-import os from 'os';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { emptyDevice, emptyVolume } from '../../../src/utilities';
@@ -15,8 +14,10 @@ import {
   parsefdiskl,
   splitdfTLine,
   parsedfT,
-  parseLinux
+  parseLinux,
 } from '../../../src/linux/linux';
+
+const linuxEOL = '\n';
 
 // tap :: Function -> a -> a
 const tap = (f) => (x) => {
@@ -94,14 +95,14 @@ describe('linux unit tests', function(){
 
   describe('splitdfTLine', function(){
     it('should split the df -T line by spaces', function(done){
-      const line = `/dev/sda2      ext4     224044588 191265856  21374856  90% /${os.EOL}`;
+      const line = `/dev/sda2      ext4     224044588 191265856  21374856  90% /${linuxEOL}`;
       const fields = splitdfTLine(line);
       expect(fields.length).to.be.equal(7);
       done();
     });
 
     it('should split the df -T line by spaces while ignoring spaces that are escaped using \'\\\'', function(done){
-      const line = `/dev/sda2      ext4     224044588 191265856  21374856  90% /dev/sda2/Hello\\ World${os.EOL}`;
+      const line = `/dev/sda2      ext4     224044588 191265856  21374856  90% /dev/sda2/Hello\\ World${linuxEOL}`;
       const fields = splitdfTLine(line);
       expect(fields.length).to.be.equal(7);
       done();
@@ -111,10 +112,10 @@ describe('linux unit tests', function(){
   describe('parsedfT', function(){
     it('should properly parse the input to the accumulator', function(done){
       const input =
-        `Filesystem     Type     1K-blocks      Used Available Use% Mounted on${os.EOL}` +
-        `udev           devtmpfs   8033312         0   8033312   0% /dev${os.EOL}` +
-        `tmpfs          tmpfs      1610744      9616   1601128   1% /run${os.EOL}` +
-        `/dev/sda2      ext4     224044588 191265856  21374856  90% /${os.EOL}`;
+        `Filesystem     Type     1K-blocks      Used Available Use% Mounted on${linuxEOL}` +
+        `udev           devtmpfs   8033312         0   8033312   0% /dev${linuxEOL}` +
+        `tmpfs          tmpfs      1610744      9616   1601128   1% /run${linuxEOL}` +
+        `/dev/sda2      ext4     224044588 191265856  21374856  90% /${linuxEOL}`;
       const getNodeId = () => 'sda2';
       const createNewVolume = () => { return { space: { total: null, used: null, available: null } }; };
 
@@ -134,6 +135,22 @@ describe('linux unit tests', function(){
   });
 
   describe('parsefdisklDeviceData', function(){
+    it('should throw when input is not in english', function(done){
+      const input = [
+        'Disco /dev/sdb: 232,9 GiB, 250059350016 bytes, 488397168 sectores',
+        'Unidades: sectores de 1 * 512 = 512 bytes',
+        'Tamaño de sector (lógico/físico): 512 bytes / 512 bytes',
+        'Tamaño de E/S (mínimo/óptimo): 512 bytes / 512 bytes',
+        'Tipo de etiqueta de disco: dos',
+        'Identificador del disco: 0x000521de',
+      ];
+      const getNodeId = () => 'sdb';
+      const createNewDevice = () => { return {}; };
+      const parseit = () => parsefdisklDeviceData(getNodeId, createNewDevice)({ devices: {}, volumes: {} })(input);
+      expect(parseit).to.throw();
+      done();
+    });
+
     it('should generate a new device node and add the size, blockSize and ' +
       'volumeBlockSize properties', function(done){
       const input = [
@@ -142,7 +159,7 @@ describe('linux unit tests', function(){
         'Sector size (logical/physical): 512 bytes / 512 bytes',
         'I/O size (minimum/optimal): 512 bytes / 512 bytes',
         'Disklabel type: gpt',
-        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931'
+        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931',
       ];
       const getNodeId = () => 'sda';
       const createNewDevice = () => { return {}; };
@@ -167,7 +184,7 @@ describe('linux unit tests', function(){
         'Sector size (logical/physical): 512 bytes / 512 bytes',
         'I/O size (minimum/optimal): 512 bytes / 512 bytes',
         'Disklabel type: gpt',
-        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931'
+        'Disk identifier: 5E58417C-8527-9F21-6D0C-160DE8885931',
       ];
       const sda = emptyDevice();
       sda.node = '/dev/sdz';
@@ -195,6 +212,15 @@ describe('linux unit tests', function(){
   });
 
   describe('parsefdisklVolumeData', function(){
+    it('should throw when input is invalid', function(done){
+      const input = ['Invalid data'];
+      const getNodeId = () => 'sda1';
+      const createNewVolume = () => { return {}; };
+      const parseit = () => parsefdisklVolumeData(getNodeId, createNewVolume)({ devices: {}, volumes: {} })(input);
+      expect(parseit).to.throw();
+      done();
+    });
+
     it('should generate a new volume node and add the blocks and description ' +
       'properties', function(done){
       const input = ['/dev/sda1       2048      4095      2048     1.1M BIOS boot'];
@@ -242,19 +268,19 @@ describe('linux unit tests', function(){
   describe('parsefdiskl', function(){
     it('should split the input into three blocks and call the proper parser functions', function(done){
       const input =
-        `a${os.EOL}` +
-        `b${os.EOL}` +
-        `c${os.EOL}` +
-        `${os.EOL}` +
-        `header${os.EOL}` +
-        `0${os.EOL}` +
-        `1${os.EOL}` +
-        `2${os.EOL}` +
-        `${os.EOL}` +
-        `${os.EOL}` +
-        `d${os.EOL}` +
-        `e${os.EOL}` +
-        `f${os.EOL}`;
+        `Disk a${linuxEOL}` +
+        `b${linuxEOL}` +
+        `c${linuxEOL}` +
+        `${linuxEOL}` +
+        `Device ${linuxEOL}` +
+        `0${linuxEOL}` +
+        `1${linuxEOL}` +
+        `2${linuxEOL}` +
+        `${linuxEOL}` +
+        `${linuxEOL}` +
+        `Disk d${linuxEOL}` +
+        `e${linuxEOL}` +
+        `f${linuxEOL}`;
       const parsefdisklDeviceDataSpy = sinon.spy();
       const parsefdisklDeviceData = (acc) => tap(parsefdisklDeviceDataSpy);
       const parsefdisklVolumeDataSpy = sinon.spy();
@@ -262,8 +288,8 @@ describe('linux unit tests', function(){
       parsefdiskl(parsefdisklDeviceData, parsefdisklVolumeData)(input)({ devices: {}, volumes: {} });
 
       expect(parsefdisklDeviceDataSpy.callCount).to.be.equal(2);
-      expect(parsefdisklDeviceDataSpy.getCall(0).calledWith(['a', 'b', 'c'])).to.be.true;
-      expect(parsefdisklDeviceDataSpy.getCall(1).calledWith(['d', 'e', 'f'])).to.be.true;
+      expect(parsefdisklDeviceDataSpy.getCall(0).calledWith(['Disk a', 'b', 'c'])).to.be.true;
+      expect(parsefdisklDeviceDataSpy.getCall(1).calledWith(['Disk d', 'e', 'f'])).to.be.true;
       expect(parsefdisklVolumeDataSpy.callCount).to.be.equal(1);
       expect(parsefdisklVolumeDataSpy.getCall(0).calledWith(['0', '1', '2'])).to.be.true;
       done();
@@ -368,11 +394,11 @@ describe('linux unit tests', function(){
     it('should sanitize the input by splitting into lines, removing empty lines ' +
       'and splitting by fields', function(done){
       const input =
-        `${os.EOL}` +
-        `KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 850 " TYPE="disk"${os.EOL}` +
-        `${os.EOL}` +
-        `KNAME="sda1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"${os.EOL}` +
-        `KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="TOSHIBA MK5061GS" TYPE="disk"${os.EOL}`;
+        `${linuxEOL}` +
+        `KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 850 " TYPE="disk"${linuxEOL}` +
+        `${linuxEOL}` +
+        `KNAME="sda1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"${linuxEOL}` +
+        `KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="TOSHIBA MK5061GS" TYPE="disk"${linuxEOL}`;
       const spy = sinon.spy();
       const parselsblkDeviceData = (acc) =>
         (values) => { spy(values); return acc; };
@@ -389,9 +415,9 @@ describe('linux unit tests', function(){
     it('should call parselsblkDeviceData for each line that has TYPE="disk", and ' +
       'parselsblkVolumeData for every line that has TYPE="part"', function(done){
       const input =
-        `KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 850 " TYPE="disk"${os.EOL}` +
-        `KNAME="sda1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"${os.EOL}` +
-        `KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="TOSHIBA MK5061GS" TYPE="disk"${os.EOL}`;
+        `KNAME="sda" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="Samsung SSD 850 " TYPE="disk"${linuxEOL}` +
+        `KNAME="sda1" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="" TYPE="part"${linuxEOL}` +
+        `KNAME="sdb" FSTYPE="" MOUNTPOINT="" LABEL="" RO="0" RM="0" MODEL="TOSHIBA MK5061GS" TYPE="disk"${linuxEOL}`;
       const parselsblkDeviceDataSpy = sinon.spy();
       const parselsblkDeviceData = (acc) =>
         (values) => { parselsblkDeviceDataSpy(values); return acc; };
@@ -411,13 +437,13 @@ describe('linux unit tests', function(){
         devices: {
           'sda': {},
           'sdb': {},
-          'sdc': {}
+          'sdc': {},
         },
         volumes: {
           'sda1': { id: 'sda1' },
           'sda2': { id: 'sda2' },
-          'sdb1': { id: 'sdb1' }
-        }
+          'sdb1': { id: 'sdb1' },
+        },
       };
       const merged = mergeVolumesAndDevicesLinux(emptyDevice)(acc);
       const expectedKeys = Object.keys(emptyDevice());
@@ -439,11 +465,11 @@ describe('linux unit tests', function(){
       'property of its volumes', function(done){
       const acc = {
         devices: {
-          'sda': { volumeBlockSize: 512 }
+          'sda': { volumeBlockSize: 512 },
         },
         volumes: {
-          'sda1': { id: 'sda1' }
-        }
+          'sda1': { id: 'sda1' },
+        },
       };
       const merged = mergeVolumesAndDevicesLinux(emptyDevice)(acc);
       const expectedKeys = Object.keys(emptyDevice());
@@ -510,7 +536,7 @@ describe('linux unit tests', function(){
       const devices = {
         'sda': { id: 'sda' },
         'sdb': { id: 'sdb' },
-        'sdc': { id: 'sdc' }
+        'sdc': { id: 'sdc' },
       };
       const parsedfT = () => tap;
       const parsefdiskl = () => (acc) => acc;
