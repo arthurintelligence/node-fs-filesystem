@@ -33,8 +33,7 @@ matrix:
       env:
         - TRAVIS=true
 cache:
-  yarn: true
   directories:
     - "node_modules"
 script:
-  - yarn run test:ci
+  - npm run test:ci
