@@ -1,8 +1,9 @@
 {
   "name": "fs-filesystem",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Read information about the filesystem of the current machine (devices and partitions)",
-  "main": "lib/fs-filesystem.js",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
   "repository": "https://github.com/qzdio/node-fs-filesystem",
   "author": "philippefutureboy <philippe@human.space>",
   "license": "MIT",
