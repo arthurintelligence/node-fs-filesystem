@@ -1,6 +1,6 @@
 {
   "name": "fs-filesystem",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Read information about the filesystem of the current machine (devices and partitions)",
   "main": "lib/index.js",
   "module": "esm/index.js",
