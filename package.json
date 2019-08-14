@@ -61,7 +61,7 @@
     "nyc": "^12.0.2",
     "release-it": "^7.4.8",
     "rewire": "^4.0.1",
-    "rimraf": "^2.6.2",
+    "rimraf": "2.6.3",
     "sinon": "^6.1.4"
   },
   "config": {
