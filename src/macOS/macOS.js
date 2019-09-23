@@ -3,7 +3,7 @@ import { hasSubstr, getYesNo, emptyDevice, emptyVolume } from '../utilities';
 const { each } = F;
 const { filter } = F.R;
 
-export const COMMAND = 'diskutil info -all';
+export const COMMAND = '/usr/sbin/diskutil info -all';
 
 export const getMacOSBytes = (str) => parseInt(str.match(/\((\d+) Bytes\)/)[1]);
 
