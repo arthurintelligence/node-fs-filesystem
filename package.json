@@ -45,7 +45,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "^6.24.1",
     "chai": "^4.1.2",
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.0.12",
     "cross-env": "^5.2.0",
     "cz-conventional-changelog": "^2.1.0",
     "eslint": "^5.2.0",
